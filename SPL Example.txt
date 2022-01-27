@@ -1,0 +1,482 @@
+syntax:
+AS - change or modify
+BY - count
+OVER - certain field type
+WHERE - boolean
+EVAL - create a new field name  (e.g eval entity_title2=cluster_name  create new field called enity_title2 from existing field cluster_name)
+SELFJOIN - join matching id to one result
+stats count - give total count
+
+
+
+
+search list:
+index=main user=*  sourcetype="Unix:UserAccounts" | fields - host
+
+index=main user=*  sourcetype="Unix:UserAccounts" | fields + host, user
+
+index=main user=*  sourcetype="Unix:UserAccounts" 
+| search splunk
+
+index=main user=*  sourcetype="Unix:UserAccounts" 
+| search var
+
+index=main user=*  sourcetype="Unix:UserAccounts" 
+| search splunk 
+| rename host as server
+
+index=main user=*  sourcetype="Unix:UserAccounts" 
+| tail 10
+
+index=main user=*  sourcetype="Unix:UserAccounts" 
+| head 10
+
+
+index=main process=*   COMMAND=NetworkManager | sort app
+
+index=main process=*   COMMAND=NetworkManager | sort app desc
+
+index=main process=*  | top limit=3 app
+
+index=main process=*  | rare limit=3 app
+
+index=main 
+| contingency host sourcetype
+
+
+index=main 
+| stats min(sourcetype) by source
+
+
+index=main 
+| stats max(sourcetype) by source
+
+index=main 
+| stats avg(sourcetype) by source  -> only works with number
+
+index=main 
+| stats count(sourcetype) by source
+
+index=main 
+| chart count as types by sourcetype
+
+
+host="centos8-splunk-itsi-01" 
+| timechart count as type by sourcetype
+
+------------------------
+create lookup.csv:
+survived,status
+0,perished
+1,survived
+
+go to settings->lookups->Lookup table files and load the survived.csv and name it the same
+
+index=main linecount=* | rename linecount as survived| lookup lookup.csv survived OUTPUT status 
+| table survived status
+
+index=main linecount=* | where linecount!=1| rename linecount as survived| lookup lookup.csv survived OUTPUT status 
+| table survived status
+
+create lookup.csv:
+survived,status
+0,perished
+1,survived
+4,bad
+index=main linecount=* | where linecount=4| rename linecount as survived| lookup lookup.csv survived OUTPUT status 
+| table survived status
+
+--------
+K8S:
+
+index=k8_objects sourcetype="kube:objects:pods" 
+| dedup host
+
+index=k8_objects sourcetype="kube:objects:pods" | dedup cluster_name
+
+index=k8_objects sourcetype="kube:objects:pods"
+| dedup metadata.namespace
+
+append = combine:
+index="_internal"  | stats count by sourcetype| append [search index=main | stats count by sourcetype]
+
+index=_internal | stats count by sourcetype | appendpipe [|stats sum(count) as count | eval sourcetype="All SourceTypes"]
+
+index=_internal | timechart span=1d count as CountA| appendcols [search index=main | timechart span=1d count as CountB] -> didn't work!
+
+
+
+Metrics:
+list all metrics:
+| mstats avg("*") WHERE `itsi_entity_type_ta_nix_metrics_indexes` by host span=5m
+
+avg(df_metric.Avail_KB)
+avg(df_metric.IFree)
+avg(df_metric.INodes)
+avg(df_metric.IUsePct)
+avg(df_metric.IUsed)
+avg(df_metric.Size_KB)
+avg(df_metric.UsePct)
+avg(df_metric.Used_KB)
+avg(interfaces_metric.Collisions)
+avg(interfaces_metric.RXbytes)
+avg(interfaces_metric.RXdropped)
+avg(interfaces_metric.RXerrors)
+avg(interfaces_metric.TXbytes)
+avg(interfaces_metric.TXdropped)
+avg(interfaces_metric.TXerrors)
+avg(kube.cluster.cpu.limit)
+avg(kube.cluster.cpu.request)
+avg(kube.cluster.cpu.usage)
+avg(kube.cluster.memory.limit)
+avg(kube.cluster.memory.request)
+avg(kube.cluster.memory.usage)
+avg(kube.container.cpu.limit)
+avg(kube.container.cpu.request)
+avg(kube.container.cpu.usage)
+avg(kube.container.cpu.usage_rate)
+avg(kube.container.logs.available_bytes)
+avg(kube.container.logs.capacity_bytes)
+avg(kube.container.logs.inodes)
+avg(kube.container.logs.inodes_free)
+avg(kube.container.logs.inodes_used)
+avg(kube.container.logs.used_bytes)
+avg(kube.container.memory.available_bytes)
+avg(kube.container.memory.limit)
+avg(kube.container.memory.major_page_faults)
+avg(kube.container.memory.page_faults)
+avg(kube.container.memory.request)
+avg(kube.container.memory.rss_bytes)
+avg(kube.container.memory.usage_bytes)
+avg(kube.container.memory.working_set_bytes)
+avg(kube.container.rootfs.available_bytes)
+avg(kube.container.rootfs.capacity_bytes)
+avg(kube.container.rootfs.inodes)
+avg(kube.container.rootfs.inodes_free)
+avg(kube.container.rootfs.inodes_used)
+avg(kube.container.rootfs.used_bytes)
+avg(kube.container.uptime)
+avg(kube.namespace.cpu.limit)
+avg(kube.namespace.cpu.request)
+avg(kube.namespace.cpu.usage)
+avg(kube.namespace.memory.limit)
+avg(kube.namespace.memory.request)
+avg(kube.namespace.memory.usage)
+avg(kube.node.cpu.allocatable)
+avg(kube.node.cpu.capacity)
+avg(kube.node.cpu.reservation)
+avg(kube.node.cpu.usage)
+avg(kube.node.cpu.usage_rate)
+avg(kube.node.cpu.utilization)
+avg(kube.node.fs.available_bytes)
+avg(kube.node.fs.capacity_bytes)
+avg(kube.node.fs.inodes)
+avg(kube.node.fs.inodes_free)
+avg(kube.node.fs.inodes_used)
+avg(kube.node.fs.used_bytes)
+avg(kube.node.imagefs.available_bytes)
+avg(kube.node.imagefs.capacity_bytes)
+avg(kube.node.imagefs.inodes)
+avg(kube.node.imagefs.inodes_free)
+avg(kube.node.imagefs.inodes_used)
+avg(kube.node.imagefs.used_bytes)
+avg(kube.node.memory.allocatable)
+avg(kube.node.memory.available_bytes)
+avg(kube.node.memory.capacity)
+avg(kube.node.memory.major_page_faults)
+avg(kube.node.memory.page_faults)
+avg(kube.node.memory.reservation)
+avg(kube.node.memory.rss_bytes)
+avg(kube.node.memory.usage_bytes)
+avg(kube.node.memory.utilization)
+avg(kube.node.memory.working_set_bytes)
+avg(kube.node.network.rx_bytes)
+avg(kube.node.network.rx_errors)
+avg(kube.node.network.tx_bytes)
+avg(kube.node.network.tx_errors)
+avg(kube.node.runtime.imagefs.curproc)
+avg(kube.node.runtime.imagefs.maxpid)
+avg(kube.node.uptime)
+avg(kube.pod.cpu.limit)
+avg(kube.pod.cpu.request)
+avg(kube.pod.cpu.usage)
+avg(kube.pod.cpu.usage_rate)
+avg(kube.pod.ephemeral-storage.available_bytes)
+avg(kube.pod.ephemeral-storage.capacity_bytes)
+avg(kube.pod.ephemeral-storage.inodes)
+avg(kube.pod.ephemeral-storage.inodes_free)
+avg(kube.pod.ephemeral-storage.inodes_used)
+avg(kube.pod.ephemeral-storage.used_bytes)
+avg(kube.pod.memory.available_bytes)
+avg(kube.pod.memory.limit)
+avg(kube.pod.memory.major_page_faults)
+avg(kube.pod.memory.page_faults)
+avg(kube.pod.memory.request)
+avg(kube.pod.memory.rss_bytes)
+avg(kube.pod.memory.usage_bytes)
+avg(kube.pod.memory.working_set_bytes)
+avg(kube.pod.network.rx_bytes)
+avg(kube.pod.network.rx_errors)
+avg(kube.pod.network.tx_bytes)
+avg(kube.pod.network.tx_errors)
+avg(kube.pod.uptime)
+avg(kube.pod.volume.available_bytes)
+avg(kube.pod.volume.capacity_bytes)
+avg(kube.pod.volume.inodes)
+avg(kube.pod.volume.inodes_free)
+avg(kube.pod.volume.inodes_used)
+avg(kube.pod.volume.used_bytes)
+avg(kube.sys-container.cpu.usage)
+avg(kube.sys-container.cpu.usage_rate)
+avg(kube.sys-container.memory.available_bytes)
+avg(kube.sys-container.memory.major_page_faults)
+avg(kube.sys-container.memory.page_faults)
+avg(kube.sys-container.memory.rss_bytes)
+avg(kube.sys-container.memory.usage_bytes)
+avg(kube.sys-container.memory.working_set_bytes)
+avg(kube.sys-container.uptime)
+avg(ps_metric.RSZ_KB)
+avg(ps_metric.VSZ_KB)
+avg(ps_metric.pctCPU)
+avg(ps_metric.pctMEM)
+
+
+| mstats avg("*")  where index=itsi_im_metrics
+| mstats avg("*")  where index=itsi_im_metrics by cluster_name span=5m
+| mstats avg("*")  where index=itsi_im_metrics by namespace span=5m
+| mstats avg("*")  where index=itsi_im_metrics by cluster_name, node, pod-name, "container-name" span=5m
+
+avg(df_metric.Avail_KB)
+avg(df_metric.IFree)
+avg(df_metric.INodes)
+avg(df_metric.IUsePct)
+avg(df_metric.IUsed)
+avg(df_metric.Size_KB)
+avg(df_metric.UsePct)
+avg(df_metric.Used_KB)
+avg(interfaces_metric.Collisions)
+avg(interfaces_metric.RXbytes)
+avg(interfaces_metric.RXdropped)
+avg(interfaces_metric.RXerrors)
+avg(interfaces_metric.TXbytes)
+avg(interfaces_metric.TXdropped)
+avg(interfaces_metric.TXerrors)
+avg(kube.cluster.cpu.limit)
+avg(kube.cluster.cpu.request)
+avg(kube.cluster.cpu.usage)
+avg(kube.cluster.memory.limit)
+avg(kube.cluster.memory.request)
+avg(kube.cluster.memory.usage)
+avg(kube.container.cpu.limit)
+avg(kube.container.cpu.request)
+avg(kube.container.cpu.usage)
+avg(kube.container.cpu.usage_rate)
+avg(kube.container.logs.available_bytes)
+avg(kube.container.logs.capacity_bytes)
+avg(kube.container.logs.inodes)
+avg(kube.container.logs.inodes_free)
+avg(kube.container.logs.inodes_used)
+avg(kube.container.logs.used_bytes)
+avg(kube.container.memory.available_bytes)
+avg(kube.container.memory.limit)
+avg(kube.container.memory.major_page_faults)
+avg(kube.container.memory.page_faults)
+avg(kube.container.memory.request)
+avg(kube.container.memory.rss_bytes)
+avg(kube.container.memory.usage_bytes)
+avg(kube.container.memory.working_set_bytes)
+avg(kube.container.rootfs.available_bytes)
+avg(kube.container.rootfs.capacity_bytes)
+avg(kube.container.rootfs.inodes)
+avg(kube.container.rootfs.inodes_free)
+avg(kube.container.rootfs.inodes_used)
+avg(kube.container.rootfs.used_bytes)
+avg(kube.container.uptime)
+avg(kube.namespace.cpu.limit)
+avg(kube.namespace.cpu.request)
+avg(kube.namespace.cpu.usage)
+avg(kube.namespace.memory.limit)
+avg(kube.namespace.memory.request)
+avg(kube.namespace.memory.usage)
+avg(kube.node.cpu.allocatable)
+avg(kube.node.cpu.capacity)
+avg(kube.node.cpu.reservation)
+avg(kube.node.cpu.usage)
+avg(kube.node.cpu.usage_rate)
+avg(kube.node.cpu.utilization)
+avg(kube.node.fs.available_bytes)
+avg(kube.node.fs.capacity_bytes)
+avg(kube.node.fs.inodes)
+avg(kube.node.fs.inodes_free)
+avg(kube.node.fs.inodes_used)
+avg(kube.node.fs.used_bytes)
+avg(kube.node.imagefs.available_bytes)
+avg(kube.node.imagefs.capacity_bytes)
+avg(kube.node.imagefs.inodes)
+avg(kube.node.imagefs.inodes_free)
+avg(kube.node.imagefs.inodes_used)
+avg(kube.node.imagefs.used_bytes)
+avg(kube.node.memory.allocatable)
+avg(kube.node.memory.available_bytes)
+avg(kube.node.memory.capacity)
+avg(kube.node.memory.major_page_faults)
+avg(kube.node.memory.page_faults)
+avg(kube.node.memory.reservation)
+avg(kube.node.memory.rss_bytes)
+avg(kube.node.memory.usage_bytes)
+avg(kube.node.memory.utilization)
+avg(kube.node.memory.working_set_bytes)
+avg(kube.node.network.rx_bytes)
+avg(kube.node.network.rx_errors)
+avg(kube.node.network.tx_bytes)
+avg(kube.node.network.tx_errors)
+avg(kube.node.runtime.imagefs.curproc)
+avg(kube.node.runtime.imagefs.maxpid)
+avg(kube.node.uptime)
+avg(kube.pod.cpu.limit)
+avg(kube.pod.cpu.request)
+avg(kube.pod.cpu.usage)
+avg(kube.pod.cpu.usage_rate)
+avg(kube.pod.ephemeral-storage.available_bytes)
+avg(kube.pod.ephemeral-storage.capacity_bytes)
+avg(kube.pod.ephemeral-storage.inodes)
+avg(kube.pod.ephemeral-storage.inodes_free)
+avg(kube.pod.ephemeral-storage.inodes_used)
+avg(kube.pod.ephemeral-storage.used_bytes)
+avg(kube.pod.memory.available_bytes)
+avg(kube.pod.memory.limit)
+avg(kube.pod.memory.major_page_faults)
+avg(kube.pod.memory.page_faults)
+avg(kube.pod.memory.request)
+avg(kube.pod.memory.rss_bytes)
+avg(kube.pod.memory.usage_bytes)
+avg(kube.pod.memory.working_set_bytes)
+avg(kube.pod.network.rx_bytes)
+avg(kube.pod.network.rx_errors)
+avg(kube.pod.network.tx_bytes)
+avg(kube.pod.network.tx_errors)
+avg(kube.pod.uptime)
+avg(kube.pod.volume.available_bytes)
+avg(kube.pod.volume.capacity_bytes)
+avg(kube.pod.volume.inodes)
+avg(kube.pod.volume.inodes_free)
+avg(kube.pod.volume.inodes_used)
+avg(kube.pod.volume.used_bytes)
+avg(kube.sys-container.cpu.usage)
+avg(kube.sys-container.cpu.usage_rate)
+avg(kube.sys-container.memory.available_bytes)
+avg(kube.sys-container.memory.major_page_faults)
+avg(kube.sys-container.memory.page_faults)
+avg(kube.sys-container.memory.rss_bytes)
+avg(kube.sys-container.memory.usage_bytes)
+avg(kube.sys-container.memory.working_set_bytes)
+avg(kube.sys-container.uptime)
+avg(ps_metric.RSZ_KB)
+avg(ps_metric.VSZ_KB)
+avg(ps_metric.pctCPU)
+avg(ps_metric.pctMEM)
+
+-----
+| mstats avg("cpu.utilization") as con_cpu_utilization, sum("memory.free") as con_memory_free, avg("blkio.io_service_bytes_recursive.read") as con_disk_read, avg("blkio.io_service_bytes_recursive.write") as con_disk_write where index=sim_metrics AND cluster=* by host.name, cluster span=15m | eval con_memory_free_mb=con_memory_free/1024/1024 | table _time, host.name, cluster, con_cpu_utilization, con_memory_free_mb, con_disk_read, con_disk_write
+
+------
+kpi_base_search_title			 search_str
+K8s:Namespace:Pod-log-errors	`k8s_events_index` sourcetype::kube:container:* (error OR fail* OR warn* OR timeout OR crash) | eval pod_name=pod
+K8s:Namespace:Pod-logs-all		| tstats count WHERE `k8s_events_index` sourcetype::kube:container:* by _time pod span=1m | eval pod_name = pod
+K8s:Namespace:MetricsByPod		| mstats latest(_value) as value WHERE metric_name IN ("kube.pod.cpu.usage_rate", "kube.pod.memory.usage_bytes") AND `k8s_metrics_index` span=1m BY metric_name pod-name, pod-namespace, node, cluster_name | eval {metric_name}=value | append [ | mstats latest(_value) as value WHERE metric_name IN ("kube.node.cpu.allocatable", "kube.node.memory.allocatable") AND `k8s_metrics_index` span=1m BY metric_name cluster_name node | eval {metric_name}=value] | eventstats values(kube.pod.memory.*) as memory_*, values(kube.pod.cpu.*) as cpu_* by pod-name, pod-namespace, node, cluster_name _time | eventstats values(kube.node.memory.*) as node_memory_*, values(kube.node.cpu.*) as node_cpu_* by node, cluster_name _time | eval cpu_usage_percentage = round(cpu_usage_rate / node_cpu_allocatable * 100, 2), memory_usage_percentage = round((memory_usage_bytes/1024/1024) / node_memory_allocatable * 100, 2) | eval pod_name = 'pod-name'
+K8s:Node:Metrics				| mstats latest(_value) AS value WHERE `k8s_metrics_index` AND (metric_name IN (kube.node.memory.available_bytes, kube.node.memory.capacity, kube.node.cpu.allocatable, kube.node.cpu.capacity, kube.node.cpu.usage, kube.node.cpu.usage_rate, kube.node.network.rx_bytes, kube.node.network.rx_errors, kube.node.network.tx_bytes, kube.node.network.tx_errors, kube.node.fs.used_bytes, kube.node.fs.available_bytes, kube.node.fs.capacity_bytes)) BY metric_name node cluster_name span=30s | eval {metric_name} = value | stats values(kube.node.memory.*) AS memory_* values(kube.node.cpu.*) AS cpu_* values(kube.node.network.*) AS network_* values(kube.node.fs.*) AS fs_* BY node cluster_name _time | eval Memory_free_percent = round(memory_available_bytes/1024/memory_capacity*100,2) | eval Memory_utilization_percent = round((Memory_free_percent-100)*(-1),2) | eval CPU_utilization_percent=round(cpu_usage_rate/cpu_capacity*100,2) | eval network_rx_gb=round(network_rx_bytes/1024/1024/1024,2) | eval network_tx_gb=round(network_tx_bytes/1024/1024/1024,2) | eval fs_utilization_percent=round(fs_used_bytes/fs_capacity_bytes*100,2) | delta network_rx_bytes as network_rx_rate_bytes | delta network_tx_bytes as network_tx_rate_bytes
+K8s:Node:Requests-vs-Limits		| mstats latest(_value) as value WHERE (metric_name IN ("kube.pod.cpu.request", "kube.pod.memory.request")) AND `k8s_metrics_index` span=1m BY metric_name, name, namespace, node, cluster_name | dedup metric_name, name, namespace, node, cluster_name _time | eval {metric_name} = value | stats sum(kube.pod.cpu.*) as sum_cpu_*, sum(kube.pod.memory.*) as sum_memory_* by namespace, node, cluster_name _time | append [| mstats latest(_value) as value WHERE (metric_name IN ("kube.node.cpu.allocatable", "kube.node.memory.allocatable")) AND `k8s_metrics_index` span=1m BY metric_name cluster_name node | eval {metric_name} = value | stats latest(kube.node.cpu.*) as node_cpu_*, latest(kube.node.memory.*) as node_memory_* by _time, cluster_name, node] | eventstats values(node_cpu_allocatable) as node_cpu_allocatable, values(node_memory_allocatable) as node_memory_allocatable by cluster_name node _time | eval cpu_request_percentage = round(sum_cpu_request / node_cpu_allocatable * 100, 2), memory_request_percentage = round(sum_memory_request / node_cpu_allocatable * 100, 2)
+K8s:Cluster:Metrics				| mstats count as containers WHERE metric_name="kube.container.uptime" AND index="itsi_im_metrics" span=1m BY cluster_name, node, pod-name, "container-name" | append [| mstats count as pods WHERE metric_name="kube.pod.uptime" AND index="itsi_im_metrics" span=1m BY cluster_name, node, pod-name ] | append [| mstats count as nodes WHERE metric_name="kube.node.uptime" AND index="itsi_im_metrics" span=1m BY cluster_name, node ] | eventstats sum(containers) as countainer_count, sum(pods) as pod_count, sum(nodes) as node_count by cluster_name _time
+K8s:Namespace:PodUptime			| mstats max(_value) as value WHERE metric_name="kube.pod.uptime" AND index="itsi_im_metrics" span=1m BY cluster_name, pod-name, pod-namespace | where value <= 5*60 | eval pod_name='pod-name'
+K8s:Node:NodeMetricsTest		| mstats latest(_value) as value WHERE metric_name IN ("kube.node.cpu.usage_rate", "kube.node.memory.usage_bytes") AND `k8s_metrics_index` span=1m BY metric_name node, cluster_name | eval {metric_name}=value | append [| mstats max(_value) as value WHERE metric_name IN ("kube.pod.cpu.usage_rate", "kube.pod.memory.usage_bytes") AND `k8s_metrics_index` span=1m BY metric_name pod-name, pod-namespace, node, cluster_name | eval {metric_name}=value | stats sum(*) as * by metric_name pod-namespace node cluster_name _time] | append [ | mstats latest(_value) as value WHERE metric_name IN ("kube.node.cpu.allocatable", "kube.node.memory.allocatable") AND `k8s_metrics_index` span=1m BY metric_name cluster_name node | eval {metric_name}=value] | eventstats values(kube.pod.memory.*) as ns_memory_*, values(kube.pod.cpu.*) as ns_cpu_* by pod-namespace, node, cluster_name _time | eventstats values(kube.node.memory.*) as node_memory_*, values(kube.node.cpu.*) as node_cpu_* by node, cluster_name _time | eval splitby = case(searchmatch("metric_name=kube.node.*"), node, 1=1, 'pod-namespace') | eval node_cpu_usage_percentage = round(node_cpu_usage_rate / node_cpu_allocatable * 100, 2), node_memory_usage_percentage = round((node_memory_usage_bytes/1024/1024) / node_memory_allocatable * 100, 2) | eval ns_cpu_usage_percentage = round(ns_cpu_usage_rate / node_cpu_allocatable * 100, 2), ns_memory_usage_percentage = round((ns_memory_usage_bytes/1024/1024) / node_memory_allocatable * 100, 2) | eval node_cpu_usage_percentage = if(searchmatch("metric_name=kube.node.*"), node_cpu_usage_percentage, null()), node_memory_usage_percentage=if(searchmatch("metric_name=kube.node.*"), node_memory_usage_percentage, null())
+DA-ITSI-OS:Performance.CPU		(`itsi_os_module_indexes` tag=oshost tag=performance tag=cpu)
+DA-ITSI-OS:Performance.Memory	(`itsi_os_module_indexes` tag=oshost tag=performance tag=memory)
+
+-----
+
+`itsi_sev_unknown`,`itsi_sev_info`, `itsi_sev_normal`, `itsi_sev_low`, `itsi_sev_medium`, `itsi_sev_high`, `itsi_sev_critical`
+
+`itsi_event_management_index`
+
+index=itsi_tracked_alerts sourcetype=itsi_notable:event type=Warning
+
+
+index=itsi_tracked_alerts alert_type="KPI alert"
+
+| mstats max(df_metric.UsePct) as val WHERE `itsi_entity_type_ta_nix_metrics_indexes` AND Filesystem="*" by host span=5m
+
+Data Models = itsi_summary (app = DA-ITSI-CP-monitoring)
+(`service_health_data`) OR (`itsi_aggregate_kpi_data`) OR (`itsi_entity_kpi_data`) alert_level>=`itsi_sev_normal`
+(`service_health_data`) OR (`itsi_aggregate_kpi_data`) OR (`itsi_entity_kpi_data`) alert_level>=`itsi_sev_normal` indexed_is_service_aggregate::1
+(`service_health_data`) OR (`itsi_aggregate_kpi_data`) OR (`itsi_entity_kpi_data`) alert_level>=`itsi_sev_normal` indexed_is_service_aggregate::0
+
+
+| inputlookup it_essentials_learn_unix-linux_process_metrics.csv
+| rename tmp_epochtime as _time, cpu_metric.pctIdle as Idle
+| eval cpu_utilization=(100 - Idle)
+| timechart max(cpu_utilization) as cpu_utilization by host
+
+source="GlobalLandTemperatureByCountry.csv" host="localhost.localdomain" sourcetype=csv | timechart avg(AverageTemperature)
+source="GlobalLandTemperatureByCountry.csv" host="localhost.localdomain" sourcetype=csv | eval newtemp = AverageTemperature/10 | timechart avg(newtemp)
+source="GlobalLandTemperatureByCountry.csv" host="localhost.localdomain" sourcetype=csv | eval COUNTRY = upper(Country)
+
+--------------
+append 
+appendpipe
+appendcols
+
+search (append) --> proper search --> give seperate resultset you "can" joint them together
+searchpipeline search (appendpipe)--> not a proper search, it runs only when it encounters appendpipe command on the resultset returned by the prev commands
+                                      - it won't work if you get this statement appendpipe[statements] and past it on the search box but append works instead
+appendcols --> create new column --> give seperate resultset you "can't" joint them together
+
+						  
+index=*
+| eval total_memory=memUsedMB+memFreeMB 
+| eval memory_percent_usage=(memUsedMB/total_memory)*100
+| timechart avg(memory_percent_usage) by host
+
+How can I detect those entities duplicate in ITSI:
+
+| inputlookup itsi_entities
+| eval original='identifier.values'
+| mvexpand original
+| eval key=_key
+| stats count values(identifier.values) AS entity_aliases values(title) AS entity_title values(key) AS entity_key values(services._key) AS service_keys by original
+| eval error=if(count>1,"dupe","")
+| where count>1
+
+How did I end up with duplicates ?
+https://community.splunk.com/t5/Splunk-IT-Service-Intelligence/Why-do-I-have-duplicate-entity-aliases-in-ITSI/m-p/303955
+Usually you have duplicates entities when the same entity was imported several time from different methods with different fields.
+
+Modify or delete a recurring import:
+From Splunk Web, go to Settings > Searches, reports, and alerts.
+
+show all fieds on stats:
+sourcetype=Linux:* OR sourcetype=Unix:* | dedup host | table *
+
+rest api:
+| rest /services/server/info 
+|  table *
+
+| rest /services/server
+|  table *
+
+| rest /
+|  table *
+
+
+| rest /  | search splunk_server="centos8-splunk-itsi-01"
+or
+| rest / splunk_server="centos8-splunk-itsi-01"
+
+
+wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.rpm
+rpm -ivh jdk-17_linux-x64_bin.rpm
+
+---------
+ITSI:
+If entities do not have entity type, it won't show up on Instrastructure view or services
+*If there is no entities, it won't show on on on Instrastructure view or services
+
