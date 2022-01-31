@@ -480,3 +480,136 @@ ITSI:
 If entities do not have entity type, it won't show up on Instrastructure view or services
 *If there is no entities, it won't show on on on Instrastructure view or services
 
+
+| mstats avg("*")  where index=itsi_im_metrics by cluster_name, node, pod-name, "container-name" span=5m 
+|  search pod-name=anchore-enterprise-anchore-engine-analyzer-dbd4d88b7-x94br container-name=anchore-engine-analyzer
+
+---
+`k8s_meta_index` sourcetype="kube:objects:pods"
+| eval namespace = mvdedup('metadata.namespace'), nodeName = mvdedup('spec.nodeName'), podName = mvdedup('metadata.name'), containerName = mvdedup('spec.containers{}.name')
+| rename podName as pod_name, namespace as pod_namespace
+| eval entity_title=pod_name
+| search pod_name=*anchore-engine-analyzer*
+| table entity_title pod_name pod_namespace
+
+
+---------
+`k8s_meta_index` sourcetype="kube:objects:pods"
+| dedup cluster_name "metadata.namespace"
+
+| appendpipe [| dedup cluster_name | eval entity_title=cluster_name | table entity_title cluster_name | eval entity_type="k8s_cluster"]
+| appendpipe [| dedup cluster_name, "metadata.namespace" | eval entity_title='metadata.namespace' | eval namespace='metadata.namespace' | table entity_title cluster_name, namespace | eval entity_type="k8s_namespace"]
+| search entity_type=k8s_cluster
+
+_raw
+_time
+cluster_name
+entity_title
+entity_type
+eventtype
+host
+index
+linecount
+meta
+metadata.annotations.cni.projectcalico.org/containerID
+metadata.annotations.kubernetes.io/psp
+metadata.creationTimestamp
+metadata.generateName
+metadata.labels.app
+metadata.labels.app.kubernetes.io/instance
+metadata.labels.app.kubernetes.io/managed-by
+metadata.labels.component
+metadata.labels.controller-uid
+metadata.labels.helm.sh/chart
+metadata.labels.istio.io/rev
+metadata.labels.job-name
+metadata.labels.pod-template-hash
+metadata.labels.security.istio.io/tlsMode
+metadata.labels.service.istio.io/canonical-name
+metadata.labels.service.istio.io/canonical-revision
+metadata.managedFields{}.apiVersion
+metadata.managedFields{}.fieldsType
+metadata.managedFields{}.manager
+metadata.managedFields{}.operation
+metadata.managedFields{}.time
+metadata.name
+metadata.namespace
+metadata.ownerReferences{}.apiVersion
+metadata.ownerReferences{}.blockOwnerDeletion
+metadata.ownerReferences{}.controller
+metadata.ownerReferences{}.kind
+metadata.ownerReferences{}.name
+metadata.ownerReferences{}.uid
+metadata.requestResourceVersion
+metadata.resourceVersion
+metadata.uid
+namespace
+punct
+source
+sourcetype
+spec.containers{}.args{}
+spec.containers{}.command{}
+spec.containers{}.envFrom{}.configMapRef.name
+spec.containers{}.envFrom{}.secretRef.name
+spec.containers{}.image
+spec.containers{}.imagePullPolicy
+spec.containers{}.name
+spec.containers{}.terminationMessagePath
+spec.containers{}.terminationMessagePolicy
+spec.containers{}.volumeMounts{}.mountPath
+spec.containers{}.volumeMounts{}.name
+spec.containers{}.volumeMounts{}.readOnly
+spec.dnsPolicy
+spec.enableServiceLinks
+spec.imagePullSecrets{}.name
+spec.nodeName
+spec.preemptionPolicy
+spec.priority
+spec.restartPolicy
+spec.schedulerName
+spec.securityContext.fsGroup
+spec.securityContext.runAsGroup
+spec.securityContext.runAsUser
+spec.serviceAccount
+spec.serviceAccountName
+spec.terminationGracePeriodSeconds
+spec.tolerations{}.effect
+spec.tolerations{}.key
+spec.tolerations{}.operator
+spec.tolerations{}.tolerationSeconds
+spec.volumes{}.name
+spec.volumes{}.projected.defaultMode
+spec.volumes{}.projected.sources{}.configMap.items{}.key
+spec.volumes{}.projected.sources{}.configMap.items{}.path
+spec.volumes{}.projected.sources{}.configMap.name
+spec.volumes{}.projected.sources{}.downwardAPI.items{}.fieldRef.apiVersion
+spec.volumes{}.projected.sources{}.downwardAPI.items{}.fieldRef.fieldPath
+spec.volumes{}.projected.sources{}.downwardAPI.items{}.path
+spec.volumes{}.projected.sources{}.serviceAccountToken.expirationSeconds
+spec.volumes{}.projected.sources{}.serviceAccountToken.path
+splunk_server
+status.conditions{}.lastProbeTime
+status.conditions{}.lastTransitionTime
+status.conditions{}.reason
+status.conditions{}.status
+status.conditions{}.type
+status.containerStatuses{}.containerID
+status.containerStatuses{}.image
+status.containerStatuses{}.imageID
+status.containerStatuses{}.name
+status.containerStatuses{}.ready
+status.containerStatuses{}.restartCount
+status.containerStatuses{}.started
+status.containerStatuses{}.state.terminated.containerID
+status.containerStatuses{}.state.terminated.exitCode
+status.containerStatuses{}.state.terminated.finishedAt
+status.containerStatuses{}.state.terminated.reason
+status.containerStatuses{}.state.terminated.startedAt
+status.hostIP
+status.phase
+status.podIP
+status.podIPs{}.ip
+status.qosClass
+status.startTime
+tag
+tag::eventtype
