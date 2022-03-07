@@ -1,9 +1,3 @@
-1. index disk space usage                                                        -> Near-critical disk usage -> can be done! (found in Indexes and Volumes: Instance)
-2. audit failure events:                                                         -> 
- - lost communication with host and devices
- - log records are no longer being received
-3. communication with the host and devices within its scope of coverage is lost  ->
-
 DMC Alert - Near Critical Disk Usage
 | rest splunk_server_group=dmc_group_* /services/server/status/partitions-space
   
