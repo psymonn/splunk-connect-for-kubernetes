@@ -1,0 +1,109 @@
+1. index disk space usage                                                        -> Near-critical disk usage -> can be done! (found in Indexes and Volumes: Instance)
+2. audit failure events:                                                         -> 
+ - lost communication with host and devices
+ - log records are no longer being received
+3. communication with the host and devices within its scope of coverage is lost  ->
+
+DMC Alert - Near Critical Disk Usage
+| rest splunk_server_group=dmc_group_* /services/server/status/partitions-space
+  
+DMC Alert - Search Peer Not Responding:
+| rest splunk_server=local /services/search/distributed/peers/
+
+DMC Alert - Critical System Physical Memory Usage
+| rest splunk_server_group=dmc_group_* /services/server/status/resource-usage/hostwide
+
+
+DMC Alert - Saturated Event-Processing Queues
+| rest splunk_server_group=dmc_group_indexer /services/server/introspection/queues
+
+
+DMC Alert - Total License Usage Near Daily Quota
+| rest splunk_server_group=dmc_group_license_master /services/licenser/pools                              
+
+
+DMC Alert - Critical System Physical Memory Usage
+| rest splunk_server_group=dmc_group_* /services/server/status/resource-usage/hostwide
+
+
+---------
+Health Check Items:
+assessment_of_server_ulimits
+| rest splunk_server=local /services/server/info 
+
+Distributed search health assessment
+| rest splunk_server_group=dmc_group_search_head /services/search/distributed/peers 
+
+Event-processing issues
+`dmc_set_index_internal` search_group=dmc_group_indexer earliest=-60m (source=*splunkd.log*) OR (source=*metrics.log*)
+
+excessive_physical_memory_usage
+| rest /services/server/status/resource-usage/hostwide
+
+Expiring or expired licenses
+| rest splunk_server_group=dmc_group_license_master /services/licenser/licenses
+
+Indexing status
+| rest splunk_server_group=dmc_group_indexer /services/server/introspection/indexer
+
+integrity_check_installed_files
+| rest /services/server/info
+
+KV Store status
+| rest splunk_server_group=dmc_group_kv_store /services/server/info
+
+
+License warnings and violations
+| rest splunk_server_group=dmc_group_license_master /services/licenser/slaves
+
+
+Linux kernel transparent huge pages
+| rest /services/server/info
+
+Local indexing on non-indexer instances
+| rest /services/server/info
+
+Missing forwarders (didn't work)
+| inputlookup dmc_forwarder_assets
+
+
+Near-critical disk usage
+| rest /services/server/status/partitions-space
+
+Orphaned scheduled searches
+| rest /servicesNS/-/-/saved/searches add_orphan_field=yes count=0
+
+Saturation of event-processing queues
+| rest  /services/server/introspection/queues
+
+Search scheduler skip ratio (didn't work)
+earliest=-60m `dmc_set_index_internal` search_group=dmc_group_search_head sourcetype=scheduler (status="completed" OR status="skipped")
+
+Upgrade opportunity from search head pooling to search head clustering  (didn't work)
+| rest /services/properties/server/pooling/state
+
+System hardware provisioning assessment
+| rest /services/server/info
+
+
+
+
+all:
+| rest /services/properties/
+
+list all alerts detected:
+| rest /services/properties/dmc_alerts
+
+| rest /services/server
+| rest /services/server/introspection
+
+indexes:
+| rest /services/data/
+| rest /services/data/indexes
+
+check search_group:
+| inputlookup dmc_assets
+-------------
+index=_internal host=siepd85uap0112 source="*metrics.log" sourcetype=splunkd group=per_Index_thruput             | eval ingest_pipe = if(isnotnull(ingest_pipe), ingest_pipe, "none")             | search ingest_pipe=*              series=_metrics
+
+
