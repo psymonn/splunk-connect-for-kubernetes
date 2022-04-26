@@ -1,0 +1,116 @@
+ITSI and ES SHC:
+#### BEGIN Splunk Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewall Rules ####
+#### BEGIN Splunk ITSI Search Head Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 8181 -j ACCEPT -m comment --comment "Splunk Search Head Replication Port"
+-A INPUT  -i ens192 -p tcp --dport 8191 -j ACCEPT -m comment --comment "Splunk KV Store Port"
+#### END Splunk ITSI Search Head Firewall Rules ####
+
+INDEXER:
+#### BEGIN Splunk Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewall Rules ####
+#### BEGIN Splunk Indexer Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 9887 -j ACCEPT -m comment --comment "Splunk HTTP"
+#### END Splunk Indexer Firewall Rules ####
+COMMIT
+
+
+Deployment Server:
+#### BEGIN Splunk Firewall Rules ####
+#-A INPUT  -i ens192 -m multiport -p tcp --dport 9887,8191,8091,8000,9777 -j ACCEPT -m comment --comment "Splunk"
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewall Rules ####
+
+
+CM:
+#### BEGIN Splunk Firewall Rules ####
+#-A INPUT  -i ens192 -m multiport -p tcp --dport 9887,8191,8091,8000,9777 -j ACCEPT -m comment --comment "Splunk"
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewall Rules ####
+COMMIT
+#### BEGIN Splunk MGMT Rules ####
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -p tcp -m tcp --dport 443 -j REDIRECT --to-ports 8000
+COMMIT
+#### END Splunk MGMT Rules ####
+
+
+ITSI & LC & MC:
+#### BEGIN Splunk Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewall Rules ####
+COMMIT
+#### BEGIN Splunk MGMT Rules ####
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -p tcp -m tcp --dport 443 -j REDIRECT --to-ports 8000
+COMMIT
+#### END Splunk MGMT Rules ####
+
+
+Deployment Server:
+#### BEGIN Splunk Firewall Rules ####
+#-A INPUT  -i ens192 -m multiport -p tcp --dport 9887,8191,8091,8000,9777 -j ACCEPT -m comment --comment "Splunk"
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewall Rules ####
+
+
+ ES Deployer:
+#### BEGIN Splunk Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewa
+
+
+HF:
+#### BEGIN Splunk Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 8000 -j ACCEPT -m comment --comment "Web Service"
+-A INPUT  -i ens192 -p tcp --dport 9997 -j ACCEPT -m comment --comment "Splunk Data Port"
+-A INPUT  -i ens192 -p tcp --dport 8089 -j ACCEPT -m comment --comment "Splunk Management Port"
+#### END Splunk Firewall Rules ####
+#### BEGIN Splunk Heavy Forwarder Firewall Rules ####
+-A INPUT  -i ens192 -p tcp --dport 8088 -j ACCEPT -m comment --comment "Splunk HEC-HTTP"
+-A OUTPUT -o ens192 -m multiport -p tcp --dports 8089,9997 -j ACCEPT -m comment --comment "Splunk Forwarder Agent"
+#### END Splunk Heavy Forwarder Firewall Rules ####
+COMMIT
+
+UF:
+A OUTPUT -o ens192 -m multiport -p tcp --dports 8089,9997 -j ACCEPT -m comment --comment "Splunk Universal Forwarder"
+
+
+SHC
+ES
+8191 kvstore      old 8191
+8181 rep          old 9200
+
+ITSI
+8191 kvstore      old 8191
+8181 rep          old 9200
+
+indexer:
+9887 rep         old 9100
+
+
+
