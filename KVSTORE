@@ -1,0 +1,59 @@
+Sunday, 1 May 2022
+11:47 PM
+
+update ca to centos os:
+scp root@192.168.50.166:/root/source/certs/labc_root_ca.cer ~
+#scp root/source/certs/labc_root_ca.cer root@192.168.50.129:~/source
+#cd /root/source
+cp labc_root_ca.cer /etc/pki/ca-trust/source/anchors/
+chmod 644 /etc/pki/ca-trust/source/anchors/labc_root_ca.cer
+update-ca-trust
+trust list |grep -i labc
+    label: LABCPKI01-CA
+    
+    
+    
+    Note:
+#Remove the captain last!!!!
+splunk remove shcluster-member
+This node is not the captain of the search head cluster, and we could not determine the current captain. The cluster is either in the process of electing a new captain,  or this member hasn't joined the pool
+
+#Remove a member that's already down - tried after remove the captain, nothing it won't work!
+splunk remove shcluster-member -mgmt_uri https://siepd85ump6101.mgmt.poc.mil.au:8089
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 1:
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Option 1:		
+		----------------------------
+		Remove seach head memeber:
+		----------------------------
+		splunk show shcluster-status  #find the captain and remove last
+		splunk remove shcluster-member
+		splunk stop
+		#kvstore will automaticly remove on inactive member therefore you can't run this splunk show kvstore-status, because splunk already stopped
+		splunk clean all             #Clean all
+		splunk restart               #Restart CM 
+		
+
+Option 2:
+		------------------
+		Disable memeber:
+		------------------
+		#Remove the member sh4:
+		splunk remove shcluster-member
+
+		#Disable the member:
+		splunk disable shcluster-config
+
+		#Stop splunk:
+		splunk stop
+
+		#Clean the KVStore:
+		splunk clean kvstore --cluster
+
+		#Clean all:
+		splunk clean all
+
+		#Restart CM:
+		splunk restart
