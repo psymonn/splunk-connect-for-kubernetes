@@ -19,7 +19,7 @@ splunk remove shcluster-member
 This node is not the captain of the search head cluster, and we could not determine the current captain. The cluster is either in the process of electing a new captain,  or this member hasn't joined the pool
 
 #Remove a member that's already down - tried after remove the captain, nothing it won't work!
-splunk remove shcluster-member -mgmt_uri https://siepd85ump6101.mgmt.poc.mil.au:8089
+splunk remove shcluster-member -mgmt_uri https://<SHC-member>:8089
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Step 1:
