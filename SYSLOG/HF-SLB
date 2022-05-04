@@ -1,0 +1,11 @@
+Setup HF:
+	1. Logon to one of the HF and update the HF with a new token leave Index as Default (see pic)
+	2. Update HF with new token
+	3. Deploy HEC via DS
+	4. Update the fleet file with new token and include all ssl certs (crt, key and ca) that matched with the server.conf (chain[crt & key], ca)
+	5. Update SLB using SSL_TCP port 8088 - include the same cert (crt,key and ca) as steps 4
+
+Note: 
+For SSL_TCP_8088 - the cert on the SLB must match with the cert on the index servers and on splunk fleet.yml otherwise you'll will be SSL failed
+For SSL_BRIDGE_8088 - the cert on the index servers must match with the cert on splunk fleet.yml otherwise you'll will be SSL failed 
+     *** For DPE it needs to be SSL_BRIDGE_8088, currently we only have Web Cert for port 8000, the 8088 is using wildcard.domain.com i.e *.domain.com
