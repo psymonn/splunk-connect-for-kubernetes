@@ -1,0 +1,194 @@
+---
+#https://docs.splunk.com/Documentation/Splunk/8.2.6/Security/AboutsecuringyourSplunkconfigurationwithSSL
+#/opt/splunk/etc/deployment-apps  (DS)  ->  /opt/splunkfowarder/etc/apps (UF) -> /opt/splunk/etc/apps (HF)
+#/opt/splunk/etc/master-apps   (CM)     ->  /opt/splunk/etc/slaves-apps  (indexes)
+#/opt/splunk/etc/shcluster     (SHD)    ->  /opt/etc/apps  (SHC)
+
+#Check cipherSuit there is the rest in server.conf? at lease in the indexes server?, wrong cipherSuite
+#ecdhCurves is default, advised by Splunk
+#[sslconfig] - some server.conf are missing attributes of cipherSuit, ecdhCurves and dhFile
+#[tcpout:primary_indexers] - some outputs.conf server needs update
+#Where is output.conf for indexe servers?
+#ADFS config and ALL other instructions
+
+- name:  Copy CM config
+  hosts: cm
+  become: true
+  tasks:
+    - name: Copy to CM config directory
+      copy:
+        src: "/tmp/Config/edits/CM/"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+#verify sslAltNameToCheck?
+#cipherSuite correct, no RSA?
+#server.conf cp_hf_certs missing ciphers?
+- name: Copy DS config
+  hosts: ds
+  become: true
+  tasks:
+    - name: Copy to DS config directory
+      copy:
+        src: "/tmp/Config/edits/DS/"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+#output.conf is pushed by DS
+- name: Copy HF config
+  hosts: hf
+  become: true
+  tasks:
+    - name: Copy to HF config directory
+      copy:
+        src: "/tmp/Config/edits/HF/"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+#Need to confirm?
+#Where is output.conf for indexes?
+#Deploy this to CM?
+- name: Copy IDX config
+  #hosts: idx
+  host: cm
+  become: true
+  tasks:
+    - name: Copy to CM master app config directory
+      copy:
+        src: "/tmp/Config/edits/IDX/"
+        dest: "/opt/splunk/etc/master-apps"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+- name: Copy site 8 IDX config
+  #hosts: idx
+  host: idx_d8
+  become: true
+  tasks:
+    - name: Copy to 8 site config directory
+      copy:
+        src: "/tmp/Config/edits/IDX/cp_site_d85_indexer_base"
+        dest: "/opt/splunk/etc/slaves-apps"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+- name: Copy site 2 IDX config
+  #hosts: idx
+  host: idx_d2
+  become: true
+  tasks:
+    - name: Copy to 2 site config directory
+      copy:
+        src: "/tmp/Config/edits/IDX/cp_site_d21_indexer_base"
+        dest: "/opt/splunk/etc/slaves-apps"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+#server.conf missing ciphers?
+- name:  Copy LM config
+  hosts: lm
+  become: true
+  tasks:
+    - name: Copy to LM config directory
+      copy:
+        src: "/tmp/Config/edits/LM/"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+#server.conf missing ciphers?
+- name:  Copy MC config
+  hosts: mc
+  become: true
+  tasks:
+    - name: Copy to MC config directory
+      copy:
+        src: "/tmp/Config/edits/MC/"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+- name:  Copy SEC config
+  hosts: sec
+  become: true
+  tasks:
+    - name: Copy to SEC config directory
+      copy:
+        src: "/tmp/Config/edits/SEC/"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+#you only need the linux folder
+#why no server.conf was pushed by DS?
+- name:  Copy UF dpl client config
+  hosts: uf
+  become: true
+  tasks:
+    - name: Copy to UF config directory
+      copy:
+        src: "/tmp/Config/edits/UF/"
+        dest: "/opt/splunkforwarder/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+- name:  Copy ES SHD client config
+  hosts: es_shd
+  become: true
+  tasks:
+    - name: Copy to ES SHD config directory
+      copy:
+        src: "/tmp/Config/edits/ES/apps"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+- name:  Copy ES SHC client config
+  hosts: es_shc
+  become: true
+  tasks:
+    - name: Copy to ES SHC config directory
+      copy:
+        src: "/tmp/Config/edits/ES/shcluster"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+- name:  Copy ITSI SHD client config
+  hosts: es_shd
+  become: true
+  tasks:
+    - name: Copy to ITSI SHD config directory
+      copy:
+        src: "/tmp/Config/edits/ES/apps"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
+
+- name:  Copy ITSI SHC client config
+  hosts: es_shc
+  become: true
+  tasks:
+    - name: Copy to ITSI SHC config directory
+      copy:
+        src: "/tmp/Config/edits/ES/shcluster"
+        dest: "/opt/splunk/etc"
+        mode: 0755
+        group: "splunk"
+        owner: "splunk"
