@@ -1,0 +1,650 @@
+Questions:
+-------------
+where is the server.conf to HF?
+what is _introspect index?, _intemertry
+how to deploy app without using unzip command
+output.conf - has no indexAndForward = false or forwardedindex.filter.disable = true
+where is all the SOPs as promised?
+For HF, add inputs.conf in DS->etc/deployment-apps/hec/inputs.conf?
+With pass4SymmKey, can I encryped it first and update it in the .conf file?
+
+Splunk base installation:
+-------------------------
+[root@centos8-splunk-es-01 tmp]# vi /etc/sysctl.conf
+net.ipv4.ip_foward=1
+[root@centos8-splunk-es-01 tmp]# sysctl --system
+[root@centos8-splunk-indexer-01 /]# vi /etc/default/grub
+GRUB_CMDLINE_LINUX="crashkernel=auto resume=/dev/mapper/cs-swap rd.lvm.lv=cs/root rd.lvm.lv=cs/swap rhgb quiet transparent_hugepage=never"
+[root@centos8-splunk-itsi-01 tmp]# grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
+[root@centos8-splunk-itsi-01 tmp]# reboot -f
+[root@centos8-splunk-indexer-01 tmp]# sudo rpm -i --prefix=/data/ splunk-8.2.3-cd0848707637-linux-2.6-x86_64.rpm
+warning: splunk-8.2.3-cd0848707637-linux-2.6-x86_64.rpm: Header V4 RSA/SHA512 Signature, key ID b3cd4420: NOKEY
+complete
+[root@centos8-splunk-indexer-01 tmp]# export SPLUNK_HOME=/data/splunk
+[root@centos8-splunk-indexer-01 tmp]# $SPLUNK_HOME/bin/splunk start --accept-license
+[root@centos8-splunk-indexer-01 tmp]# $SPLUNK_HOME/bin/splunk stop
+[root@centos8-splunk-indexer-01 tmp]# chown -R splunk:splunk /data
+[root@centos8-splunk-indexer-01 tmp]# $SPLUNK_HOME/bin/splunk enable boot-start -user splunk -systemd-managed 1
+[root@centos8-splunk-indexer-01 tmp]# systemctl enable --now Splunkd
+[root@centos8-splunk-indexer-01 tmp]# systemctl status Splunkd
+[root@centos8-splunk-indexer-01 tmp]# systemctl daemon-reload
+[root@centos8-splunk-indexer-01 tmp]# systemctl restart Splunkd
+
+[root@centos8-splunk-indexer-01 splunkweb]# vi /data/splunk/etc/system/local/web.conf
+[settings]
+enableSplunkWebSSL = true
+privKeyPath = /data/splunk/certs/wildcard.domain.local.key
+serverCert = /data/splunk/certs/wildcard.domain.local.cer
+
+[root@centos8-splunk-indexer-01 splunkweb]# mkdir -p /data/splunk/certs
+[root@centos8-splunk-indexer-01 splunkweb]# cp ~/source/wildcard.domain.local/wildcard.domain.local.cer /data/splunk/certs
+[root@centos8-splunk-indexer-01 splunkweb]# cp ~/source/wildcard.domain.local/wildcard.domain.local.key /data/splunk/certs
+[root@centos8-splunk-indexer-01 certs]# chown -R splunk:splunk /data/splunk/certs/
+[root@centos8-splunk-indexer-01 certs]# systemctl restart Splunkd
+[root@centos8-splunk-indexer-01 certs]# ln -s /data/splunk/bin/splunk /usr/bin/splunk
+[root@centos8-splunk-indexer-01 certs]# chmod ugo+x /usr/bin/splunk
+[root@centos8-splunk-indexer-01 certs]# ll /usr/bin/splunk
+lrwxrwxrwx 1 root root 23 Nov 30 23:43 /usr/bin/splunk -> /data/splunk/bin/splunk
+[root@centos8-splunk-indexer-01 certs]# ln -s /data/splunk/bin/btool /usr/bin/btool
+[root@centos8-splunk-indexer-01 certs]# chmod ugo+x /usr/bin/btool
+[root@centos8-splunk-indexer-01 certs]# ll /usr/bin/btool
+lrwxrwxrwx 1 root root 22 Nov 30 23:44 /usr/bin/btool -> /data/splunk/bin/btool
+[root@centos8-splunk-indexer-01 certs]# visudo
+# Splunk
+Cmnd_Alias SPLUNK_CMDS = /usr/bin/systemctl start Splunkd, /usr/bin/systemctl stop Splunkd, /usr/bin/systemctl restart Splunkd, /usr/bin/systemctl status Splunkd
+%splunk     ALL=(ALL)   NOPASSWD: SPLUNK_CMDS
+
+------------------------------------
+Setup Splunk Enterprise Cluster:
+------------------------------------
+#once you installed all the binaries clusters and hf:
+sudo su - splunk
+vi .bash_profile
+export SPLUNK_HOME=/data/splunk
+
+#update this file will update DNS:
+ #exit as root user
+#make sure there is a space after comma
+vi /etc/sysconfig/network-scripts/ifcfg-ens192
+#DOMAIN="redink.com, domain.local"
+DOMAIN="redink.com, domain.local, dpe.protected.mil.au"
+#verify dns:
+systemctl restart NetworkManager
+cat /etc/resolv.conf
+search redink.com, domain.local
+#test dns resolution:
+[root@server126 ~]# nslookup licence_manager
+Server:         172.17.5.130
+Address:        172.17.5.130#53
+
+Name:   licence_manager.domain.local
+Address: 192.168.40.178
+
+
+Note: 
+- the key to all access it to make sure you do this often at each changes -> chown -R splunk:splunk /data/splunk
+- always boot its deployer server first and follows by other servers
+
+--------------------------
+Configure License Manager:
+--------------------------
+-rw-r--r-- 1 root root 1498 Feb 15 19:27 splunk-en.xml
+-rw-r--r-- 1 root root 1260 Feb 15 19:27 splunk-itsi.xml
+splunk add license splunk-en.xml
+splunk add license splunk-itsi.xml
+
+  
+  #apply to ALL servers except uf and license_manager server:
+	splunk edit licenser-localslave -master_uri https://license_manager.domain.local:8089
+	The licenser-localslave object has been edited.
+	You need to restart the Splunk Server (splunkd) for your changes to take effect.
+	systemctl restart Splunkd
+
+--------------------------
+Configure Cluster Manager:
+--------------------------
+splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -secret Passw0rd32 -cluster_label Primary
+systemctl restart Splunkd
+
+#verify structure exist for master (178):
+chown -R splunk:splunk /data/splunk
+/data/splunk/etc/master-apps/_cluster/local
+cat /data/splunk/etc/system/local/server.conf
+
+#deployment:
+ edit:
+	/data/splunk/etc/master-apps
+	/data/splunk/etc/master-apps/_cluster/local/indexes.conf
+ deployment commands:
+	splunk validate cluster-bundle --check-restart
+	splunk apply cluster-bundle
+	splunk show cluster-bundle-status
+	#you may have to restart the indexer cluster for the changes to take effect:
+	splunk rolling-restart cluster-peers
+	#you are able to rollback the change if issues or errors occur on the cluster
+	splunk rollback cluster-bundle
+
+GUI:
+#tells the CM to send data to the indexers?
+178 -> settings -> Forwarding and receiving -> Forward data
+192.168.40.112:9997
+192.168.40.113:9997
+
+----------------------------
+Configure Index Servers:
+----------------------------
+#Configure Index Peer(x2 indexes)
+#indexer 1
+[root@server112 etc]# splunk edit cluster-config -mode slave -master_uri https://cluster_manager.domain.local:8089 -secret Passw0rd32 -replication_port 9887
+[root@server112 etc]# systemctl restart Splunkd
+
+#indexer 2
+[root@server113 ~]# splunk edit cluster-config -mode slave -master_uri https://cluster_manager.domain.local:8089 -secret Passw0rd32 -replication_port 9887
+[root@server113 ~]# systemctl restart Splunkd
+
+#verify slave structure exist for each indexers: 
+/data/splunk/etc/slave-apps/_cluster/local
+cat /data/splunk/etc/system/local/server.conf
+
+-------------------------------
+#Configure ITSI Deployer
+-------------------------------
+vi /data/splunk/etc/system/local/server.conf
+[shclustering]
+pass4SymmKey = Passw0rd32
+shcluster_label = shcluster
+
+#Add Licence Components (Deployer)????
+cp -R $SPLUNK_HOME/etc/shcluster/apps/SA-ITSI-Licensechecker $SPLUNK_HOME/etc/apps/
+cp -R $SPLUNK_HOME/etc/shcluster/apps/SA-UserAccess $SPLUNK_HOME/etc/apps/
+
+  #Deploying Splunk Applications via ITSI deployer:
+	[root@server178 local]# tar -xvf /tmp/splunk-add-on-for-unix-and-linux_840.tgz -C /data/splunk/etc/shcluster/apps/
+	[root@server178 local]# chown -R splunk:splunk /data
+	[root@server178 local]# ll /data/splunk/etc/shcluster/apps/Splunk_TA_nix
+	[root@server178 local]# splunk apply shcluster-bundle --answer-yes -target https://server172:8089
+	Bundle has been pushed successfully to all the cluster members.
+
+	#tried on 178 and 172 still didn't work, but app already deployed
+	[root@server178 local]# splunk rolling-restart shcluster-members -target https://server172.domain.local:8089
+	 Argument "target" is not supported by this handler.
+
+	#verify:
+	#login to slaves (172, 173,174):
+	[root@server242 apps]# ll /data/splunk/etc/apps/Splunk_TA_nix/
+
+	#Veriy from gui:
+	login to search head and see the app there
+	
+commands:
+/opt/splunk/bin/splunk apply shcluster-bundle -target https://<current-captain>:8089 
+	
+------------------------------------
+#Configure ITSI Search Head Cluster
+------------------------------------
+#install on each memeber
+yum install java-1.8.0-openjdk -y
+
+[root@server172 ~]# sudo su splunk
+
+-------------
+#Repeat this steps for all 3 members (172,173,174 severs)"
+#only need to substitude <Member1..3> in  -> #initialse search head member
+<Member1..3>:
+Member1 = https://server172:8089
+Member2 = https://server173:8089
+Member3 = https://server174:8089
+
+#e.g login to 172:
+#Note label is optional!
+syntax: 
+$SPLUNK_HOME/bin/splunk init shcluster-config -mgmt_uri <Member1..3> -replication_port 9777 -replication_factor 2 -shcluster_label shcluster -conf_deploy_fetch_url https://server178.domain.local:8089 -secret Passw0rd32
+[splunk@server172 ~]$ $SPLUNK_HOME/bin/splunk init shcluster-config -mgmt_uri https://server172:8089 -replication_port 9777 -replication_factor 2 -shcluster_label shcluster -conf_deploy_fetch_url https://itsi_deployer.domain.local:8089 -secret Passw0rd32
+
+#connect search head to index clusters
+[splunk@server172 ~]$ $SPLUNK_HOME/bin/splunk edit cluster-config -mode searchhead -master_uri https://cluster_manager.domain.local:8089 -secret Passw0rd32
+
+[splunk@server172 ~]$ sudo systemctl restart Splunkd   (#check visudo access, works with sudo su splunk [no hyphen needed])
+
+#without this enable search head caption can't resolve it
+#check /etc/resolv.conf
+search domain.local
+
+#verify config at location:
+cat /data/splunk/etc/system/local/server.conf
+
+#Enable Search Head Captain
+#login to one of the search headhead memember (I choose 172):
+[splunk@server172 root]$ $SPLUNK_HOME/bin/splunk bootstrap shcluster-captain -servers_list "https://server172:8089,https://server173:8089,https://server174:8089"
+
+#verfiy:
+splunk show shcluster-status
+splunk show kvstore-status
+	
+
+-------------------------------
+#Configure ES Deployer
+-------------------------------
+vi /data/splunk/etc/system/local/server.conf
+[shclustering]
+pass4SymmKey = Passw0rd32
+shcluster_label = shcluster
+
+verify:
+cat /data/splunk/etc/system/local/server.conf
+[shclustering]
+pass4SymmKey = $7$VYUwoS1j9YtOYzECjLA7uWyam0/7dFskA203Sy22VMsjXOdWfGK02uX1
+shcluster_label = shcluster
+
+#ES Installation and Deployment:
+#increate web upload limit on the deployer
+vi /data/splunk/etc/system/local/web.conf
+[setttings]
+max_upload_size = 1024
+splunkConnectionTimeout = 300
+systemctl restart Splunkd
+
+  #Deploying Splunk Applications via ES deployer:
+	---------------------
+	#login to es deployer 241:
+	[root@server241 apps]# tar -xvf /tmp/splunk-add-on-for-unix-and-linux_840.tgz -C /data/splunk/etc/shcluster/apps/
+	[root@server241 apps]# chown -R splunk:splunk /data
+	[root@server241 Splunk_TA_nix]# ll /data/splunk/etc/shcluster/apps/Splunk_TA_nix
+	[root@server241 apps]# splunk apply shcluster-bundle --answer-yes -target https://server242:8089
+	Bundle has been pushed successfully to all the cluster members.
+
+	#tried on 241 and 242 still didn't work, but app already deployed
+	[root@server241 Splunk_TA_nix]# splunk rolling-restart shcluster-members -target https://server242.domain.local:8089
+	Argument "target" is not supported by this handler.
+
+
+	#verify:
+	#login to slaves (242, 243,244):
+	[root@server242 apps]# ll /data/splunk/etc/apps/Splunk_TA_nix/
+
+commands:
+/opt/splunk/bin/splunk apply shcluster-bundle -target https://<current-captain>:8089 
+
+------------------------------------
+#Configure ES Search Head Cluster
+------------------------------------
+[root@server242 ~]# sudo su splunk
+
+-------------
+#Repeat this steps for all 3 members (242,243,244 severs)"
+------------------------------------
+#only need to substitude <Member1..3> in  -> #initialse search head member
+<Member1..3>:
+Member1 = https://server242:8089
+Member2 = https://server243:8089
+Member3 = https://server244:8089
+
+#e.g login to 242:
+#1-initialse search head member
+syntax: 
+$SPLUNK_HOME/bin/splunk init shcluster-config -mgmt_uri <Member1..3> -replication_port 9777 -replication_factor 2 -shcluster_label shcluster -conf_deploy_fetch_url https://server241.domain.local:8089 -secret Passw0rd32
+
+[splunk@server242 ~]$ $SPLUNK_HOME/bin/splunk init shcluster-config -mgmt_uri https://server242:8089 -replication_port 9777 -replication_factor 2 -shcluster_label shcluster -conf_deploy_fetch_url https://es_deployer.domain.local:8089 -secret Passw0rd32
+
+#2-connect search head to index clusters
+[splunk@server242 ~]$ $SPLUNK_HOME/bin/splunk edit cluster-config -mode searchhead -master_uri https://cluster_manager.domain.local:8089 -secret Passw0rd32
+
+[splunk@server242 ~]$ sudo systemctl restart Splunkd   (#check visudo access, works with sudo su splunk [no hyphen needed])
+
+#without this enable search head caption can't resolve it
+#check /etc/resolv.conf
+search domain.local
+
+#Enable Search Head Captain
+#login to one of the search headhead memember (I choose 242):
+[root@server242 ~]# $SPLUNK_HOME/bin/splunk bootstrap shcluster-captain -servers_list "https://server242:8089,https://server243:8089,https://server244:8089"
+[root@server242 ~]# splunk show shcluster-status
+
+
+------------------------------
+#Configure Deployment Server:
+------------------------------
+****Basicly, install splunk, configure serverclass and clients
+
+#1. Setup deployment for splunk UF and HF:
+[root@server241 local]# touch /data/splunk/etc/deployment-apps/Splunk_TA_nix/local/app.conf
+[root@server241 deployment-apps]# vi /data/splunk/etc/deployment-apps/outputs/local/outputs.conf
+[indexer_discovery:cluster_master]
+pass4SymmKey = Passw0rd32
+
+[tcpout:group_main]
+indexerDiscovery = cluster_master
+userACK = true
+
+[tcpout]
+defaultGroup = group_main
+indexAndForward = false
+forwardedindex.filter.disable = true
+
+[root@server241 deployment-apps]# chown splunk:splunk /data/splunk/etc/deployment-apps/outputs/local/outputs.conf
+
+[root@server241 deployment-apps]# tar -xvf /tmp/splunk-add-on-for-unix-and-linux_840.tgz -C /data/splunk/etc/deployment-apps/
+[root@server241 deployment-apps]# ll /data/splunk/etc/deployment-apps/Splunk_TA_nix/
+[root@server241 deployment-apps]# mkdir -p /data/splunk/etc/deployment-apps/Splunk_TA_nix/local
+#create a dummy file
+[root@server241 local]# touch /data/splunk/etc/deployment-apps/Splunk_TA_nix/local/app.conf
+#create or copy the inputs.conf from other search cluster
+[root@server241 local]# cat /data/splunk/etc/deployment-apps/Splunk_TA_nix/local/inputs.conf
+[monitor:///etc]
+disabled = false
+index = linux
+
+[monitor:///home/*/.bash_history]
+
+[monitor:///Library/Logs]
+disabled = true
+
+[monitor:///var/log]
+disabled = false
+index = linux
+
+[root@server241 deployment-apps]# chown splunk:splunk /data/splunk
+
+#Note: please note the linux index already created in the previous index deployment steps
+
+login to 241:
+Fowarder Manager you should now see two apps:
+- outputs
+- Splunk_TA_nix
+
+Commands:
+/opt/splunkforwarder/bin/splunk set deploy-poll deployment_server:8089
+/opt/splunk/bin/splunk reload deploy-server
+
+------------------------------
+#Configure Monitoring Console:
+------------------------------
+*** install Splunk and use distributed search and add indexes and search head
+
+
+------------------------------
+Confgure HF:
+------------------------------
+#Follow the install splunk enterprise.txt to install the HF
+1. #Setup Forward data:
+
+[root@server125 local]#  cat /data/splunk/etc/system/local/outputs.conf
+#[indexAndForward]
+#index = false
+
+[indexer_discovery:cluster_master]
+pass4SymmKey = $7$nV4u75nytc3ZdJYfYfBt5yqT9IwybMOgXe8OcWm9mhefLslz3j0+PBo1
+master_uri = https://server178.domain.local:8089                      
+
+[tcpout:group_main]
+indexerDiscovery = cluster_master
+userACK = true
+
+[tcpout]
+defaultGroup = group_main
+fowardedindex.filter.disable = true
+indexAndForward = false
+
+#verify indexer discovery is working via GUI login to HF:
+	125 -> setting -> Forwarding and receiving -> Forward data
+	192.168.40.112:9997
+	192.168.40.113:9997
+
+#Note: instead of update /data/splunk/etc/system/local/outputs.conf directory, you could setup in the deploment server (241) to push it out from there.
+---
+#verify via cli:
+[root@server125 local]# splunk list forward-server
+Your session is invalid.  Please login.
+Splunk username: admin
+Password:
+Active forwards:
+        192.168.40.116:9997       <---------
+Configured but inactive forwards:
+        192.168.40.112:9997
+        192.168.40.113:9997
+        192.168.40.114:9997
+        192.168.40.115:9997
+
+#verify via cli after reboot:
+[root@server125 local]#  splunk list forward-server
+Your session is invalid.  Please login.
+Splunk username: admin
+Password:
+Active forwards:
+        192.168.40.114:9997           <---------
+Configured but inactive forwards:
+        192.168.40.112:9997
+        192.168.40.113:9997
+        192.168.40.115:9997
+        192.168.40.116:9997
+
+
+
+
+------------------------------
+Install and Confgure UF:
+------------------------------
+[root@server126 ~]# wget -O splunkforwarder-8.2.3-cd0848707637-linux-2.6-x86_64.rpm 'https://download.splunk.com/products/universalforwarder/releases/8.2.3/linux/splunkforwarder-8.2.3-cd0848707637-linux-2.6-x86_64.rpm'
+[root@server126 ~]# rpm -i splunkforwarder-8.2.3-cd0848707637-linux-2.6-x86_64.rpm
+warning: splunkforwarder-8.2.3-cd0848707637-linux-2.6-x86_64.rpm: Header V4 RSA/SHA512 Signature, key ID b3cd4420: NOKEY
+complete
+[root@server126 ~]# /opt/splunkforwarder/bin/splunk start --accept_licence
+[root@server126 ~]# /opt/splunkforwarder/bin/splunk enable boot-start
+Init script installed at /etc/init.d/splunk.
+Init script is configured to run at boot.
+[root@server126 ~]# vi /etc/resolv.conf
+search redink.com, domain.local
+
+#add client to the fowarder management:
+[root@server126 ~]# /opt/splunkforwarder/bin/splunk set deploy-poll deployment_server:8089
+Configuration updated.
+[root@server126 bin]# cat  /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+[target-broker:deploymentServer]
+targetUri = deployment_server:8089
+
+[root@server126 ~]# /opt/splunkforwarder/bin/splunk restart
+
+[root@server126 local]# /opt/splunkforwarder/bin/splunk add forward-server index-server1:9997
+[root@server126 local]# cat  /opt/splunkforwarder/etc/system/local/outputs.conf
+[tcpout]
+defaultGroup = default-autolb-group
+
+[tcpout:default-autolb-group]
+server = index-server1:9997
+
+[tcpout-server://index-server1:9997]
+
+
+###################################################################################################################################
+# A P P E N D I X:
+###################################################################################################################################
+
+"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" btool --debug inputs list
+"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" btool --debug outputs list
+"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" btool --debug props list
+"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" btool --debug limits list
+"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" btool --debug server list
+"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" btool --debug web list
+"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" btool --debug deploymentclient list
+
+
+index cluster health checks:
+[root@server178 ~]# splunk show cluster-status --verbose
+Your session is invalid.  Please login.
+Splunk username: admin
+Password:
+
+ Pre-flight check successful .................. YES
+ ├────── Replication factor met ............... YES
+ ├────── Search factor met .................... YES
+ ├────── All data is searchable ............... YES
+ ├────── All peers are up ..................... YES
+ ├────── CM version is compatible ............. YES
+ ├────── No fixup tasks in progress ........... YES
+ └────── Splunk version peer count { 8.2.3: 2 }
+ └────── Ready for searchable rolling restart NO
+
+ Indexing Ready YES
+
+ server112          B640A6C6-4E40-4FA0-9D9C-12C055FB8CAE    default
+         Searchable YES
+         Status  Up
+         Bucket Count=181
+         Splunk Version=8.2.3
+
+ server113          E07C6F6E-53BC-4D98-8C07-A46807929A22    default
+         Searchable YES
+         Status  Up
+         Bucket Count=181
+         Splunk Version=8.2.3
+
+ _audit
+         Number of non-site aware buckets=0
+         Number of buckets=53
+         Size=4716701
+         Searchable  YES
+         Replicated copies tracker
+                53/53                   53/53
+         Searchable copies tracker
+                53/53                   53/53
+
+ _internal
+         Number of non-site aware buckets=0
+         Number of buckets=85
+         Size=381262996
+         Searchable  YES
+         Replicated copies tracker
+                85/85                   85/85
+         Searchable copies tracker
+                85/85                   85/85
+
+ _telemetry
+         Number of non-site aware buckets=0
+         Number of buckets=21
+         Size=8762
+         Searchable  YES
+         Replicated copies tracker
+                21/21                   21/21
+         Searchable copies tracker
+                21/21                   21/21
+
+ linux
+         Number of non-site aware buckets=0
+         Number of buckets=6
+         Size=835360
+         Searchable  YES
+         Replicated copies tracker
+                6/6                     6/6
+         Searchable copies tracker
+                6/6                     6/6
+
+----------------
+Java Path:
+export PATH=/usr/java/<JDK Directory>/bin:$PATH
+source .bashrc
+
+
+----------------------------------------------------------
+O U T P U T S. C O N F:
+----------------------------------------------------------
+#outputs.conf for all Splunk servers except indexer servers:
+#How do I disable local indexing and forward data?:
+
+#While looking at spec file of outputs.conf, if you define index = false in [indexAndForward] it supersedes value defined in [tcpout] stanza.
+
+# If the [tcpout] stanza configures the indexAndForward setting, the value
+# of that setting overrides the default value of 'index'. However, if you
+# set 'index' in the [indexAndForward] stanza described below, it
+# supersedes any value set in [tcpout].
+
+#Note: When you set forwardedindex.filter.disable = true, splunk do not filter indexes based on forwardedindex.<n>.whitelist and forwardedindex.<n>.blacklist parameters which means every data will be indexed.
+
+#By default in outputs.conf below configuration is present
+
+forwardedindex.0.whitelist = .*
+forwardedindex.1.blacklist = _.*
+forwardedindex.2.whitelist = (_audit|_internal|_introspection|_telemetry)
+forwardedindex.filter.disable = false
+
+C O N F I G:
+------------
+#This configuration needs to be in every Splunk server, can use deployer to depoy to UF and HF, put it in /data/splunk/etc/deployment-apps
+cat /data/splunk/etc/system/local/outputs.conf
+#[indexAndForward]
+#index = false
+
+[indexer_discovery:cluster_master]
+pass4SymmKey = $7$nV4u75nytc3ZcJYfYfBt5yqT9IwybMOgXe8OcWm9mhefLslz3j0+PBoB               (Must use plain password first and the system will encrypt it for you, otherwise it won't work!)
+master_uri = https://server178.domain.local:8089          
+
+[tcpout:group_main]
+indexerDiscovery = cluster_master
+userACK = true
+
+[tcpout]
+defaultGroup = group_main
+fowardedindex.filter.disable = true
+indexAndForward = false
+
+
+HF:
+#Test1 after reboot:
+[root@server125 local]# splunk list forward-server
+Your session is invalid.  Please login.
+Splunk username: admin
+Password:
+Active forwards:
+        192.168.40.116:9997
+Configured but inactive forwards:
+        192.168.40.112:9997
+        192.168.40.113:9997
+        192.168.40.114:9997
+        192.168.40.115:9997
+		
+#Test2 after reboot:		
+[root@server125 local]#  splunk list forward-server
+Your session is invalid.  Please login.
+Splunk username: admin
+Password:
+Active forwards:
+        192.168.40.114:9997
+Configured but inactive forwards:
+        192.168.40.112:9997
+        192.168.40.113:9997
+        192.168.40.115:9997
+        192.168.40.116:9997
+
+HF multisite:
+[root@server125 local]# cat /data/splunk/etc/system/local/server.conf
+[general]
+site = site2
+
+[root@server125 local]# splunk list forward-server
+Your session is invalid.  Please login.
+Splunk username: admin
+Password:
+Active forwards:
+        None
+Configured but inactive forwards:
+        192.168.40.115:9997
+        192.168.40.116:9997
+[root@server125 local]# splunk list forward-server
+Active forwards:
+        192.168.40.115:9997
+Configured but inactive forwards:
+        192.168.40.116:9997
+[root@server125 local]#
+
+
+
+ITSI SHC multisite:
+[root@server172 ~]# splunk list forward-server
+Your session is invalid.  Please login.
+Splunk username: admin
+Password:
+Active forwards:
+        192.168.40.112:9997
+Configured but inactive forwards:
+        192.168.40.113:9997
+        192.168.40.114:9997
+
