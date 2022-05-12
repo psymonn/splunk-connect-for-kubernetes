@@ -1,12 +1,18 @@
 Questions:
 -------------
-where is the server.conf to HF?
+where is the server.conf to HF/UF?
 what is _introspect index?, _intemertry
 how to deploy app without using unzip command
 output.conf - has no indexAndForward = false or forwardedindex.filter.disable = true
 where is all the SOPs as promised?
 For HF, add inputs.conf in DS->etc/deployment-apps/hec/inputs.conf?
 With pass4SymmKey, can I encryped it first and update it in the .conf file?
+DS - where is the serverclass.conf file?
+
+Note:
+- indexer servers doesn't require output.conf, because it handle by the indexer servers themself.
+- pass4SymmKey can be decrypted anytime, no need to remember the password, but can it be decrypted by a different sever not part of this cluster or management?
+
 
 Splunk base installation:
 -------------------------
