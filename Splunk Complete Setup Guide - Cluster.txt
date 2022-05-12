@@ -72,8 +72,7 @@ export SPLUNK_HOME=/data/splunk
  #exit as root user
 #make sure there is a space after comma
 vi /etc/sysconfig/network-scripts/ifcfg-ens192
-#DOMAIN="redink.com, domain.local"
-DOMAIN="redink.com, domain.local, dpe.protected.mil.au"
+DOMAIN="domain.local"
 #verify dns:
 systemctl restart NetworkManager
 cat /etc/resolv.conf
