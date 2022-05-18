@@ -1,0 +1,217 @@
+MC:
+kvstore - widetiger
+
+Sec shc:
+kvstore - widetiger
+Note: use LM to clone the role
+
+CM:
+ls -ltr
+total 0
+drwxr-xr-x  3 splunk splunk  21 Aug 26  2021 SA-IndexCreation
+drwxr-xr-x  6 splunk splunk 107 Aug 26  2021 SA-UserAccess ??? not required!
+
+LM:
+ls -ltr /opt/splunk/etc/apps
+total 0
+drwxr-xr-x  8 splunk splunk  85 Aug 26  2021 SA-ITSI-Licensechecker
+drwxr-xr-x  6 splunk splunk 107 Aug 26  2021 SA-UserAccess
+Note: check permission
+
+ITSI DEPLOYER:
+tar -xvf splunk-it-service-intelligence_<latest_version>.spl -C $SPLUNK_HOME/etc/shcluster/apps
+splunk apply shcluster-bundle -target <URI>:<management_port> -auth <username>:<password>
+ls -ltr /opt/splunk/etc/shcluster/apps
+total 4
+drwxr-xr-x  7 splunk splunk  90 Aug 10  2021 DA-ITSI-ContentLibrary
+drwxr-xr-x  8 splunk splunk  85 Aug 26  2021 SA-ITSI-Licensechecker
+drwxr-xr-x  3 splunk splunk  21 Aug 26  2021 SA-IndexCreation
+drwxr-xr-x  6 splunk splunk 107 Aug 26  2021 SA-UserAccess
+drwxr-xr-x  7 splunk splunk  73 Aug 26  2021 SA-ITSI-MetricAD
+drwxr-xr-x  6 splunk splunk 116 Aug 26  2021 SA-ITSI-CustomModuleViz
+drwxr-xr-x  5 splunk splunk  48 Aug 26  2021 SA-ITSI-ATAD
+drwxr-xr-x  9 splunk splunk 102 Aug 26  2021 SA-ITOA
+drwxr-xr-x  6 splunk splunk 134 Aug 26  2021 DA-ITSI-WEBSERVER
+drwxr-xr-x  7 splunk splunk 145 Aug 26  2021 DA-ITSI-VIRTUALIZATION
+drwxr-xr-x  7 splunk splunk 145 Aug 26  2021 DA-ITSI-STORAGE
+drwxr-xr-x  7 splunk splunk 145 Aug 26  2021 DA-ITSI-OS
+drwxr-xr-x  6 splunk splunk 134 Aug 26  2021 DA-ITSI-LB
+drwxr-xr-x  7 splunk splunk 145 Aug 26  2021 DA-ITSI-EUEM
+drwxr-xr-x  6 splunk splunk 134 Aug 26  2021 DA-ITSI-DATABASE
+drwxr-xr-x  6 splunk splunk 134 Aug 26  2021 DA-ITSI-APPSERVER
+drwxr-xr-x  9 splunk splunk 155 Aug 26  2021 itsi
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-example-gts
+drwxr-xr-x  8 splunk splunk  92 Oct 22  2021 DA-ITSI-CP-aws-dashboards
+drwxr-xr-x  7 splunk splunk  77 Oct 22  2021 DA-ITSI-CP-thirdparty-apm
+drwxr-xr-x  9 splunk splunk 103 Oct 22  2021 DA-ITSI-CP-vmware-dashboards
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-monitoring-splunk
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-phantom
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-shared-infra
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-citrix
+drwxr-xr-x  8 splunk splunk 112 Oct 22  2021 DA-ITSI-CP-windows-dashboards
+drwxr-xr-x  7 splunk splunk  81 Oct 22  2021 DA-ITSI-CP-monitoring-alerting
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-vmware
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-windows
+drwxr-xr-x  6 splunk splunk  83 Oct 22  2021 DA-ITSI-CP-splunk-observability
+drwxr-xr-x  7 splunk splunk  77 Oct 22  2021 DA-ITSI-CP-itew-alerting-content
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-netapp-dashboards
+drwxr-xr-x  8 splunk splunk 109 Oct 22  2021 DA-ITSI-CP-m365
+drwxr-xr-x  8 splunk splunk 111 Oct 22  2021 DA-ITSI-CP-unix-dashboards
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-cloud-foundry
+drwxr-xr-x  8 splunk splunk 109 Oct 22  2021 DA-ITSI-CP-microsoft-exchange
+drwxr-xr-x  6 splunk splunk  66 Oct 22  2021 DA-ITSI-CP-nix
+drwxr-xr-x  9 splunk splunk 142 Oct 23  2021 splunk_ta_sim
+drwxr-xr-x  8 splunk splunk 126 Nov 23 16:12 sa_ssm
+drwx------ 11 splunk splunk 219 Mar  3 10:39 Splunk_SA_CIM
+-r--r--r--  1 splunk splunk 121 Mar 24 12:11 README
+
+
+ITSI:
+ls -ltr /opt/splunk/etc/apps
+total 0
+drwxr-xr-x  4 splunk splunk  37 May  1 23:20 SplunkForwarder
+drwxr-xr-x  4 splunk splunk  37 May  1 23:20 SplunkLightForwarder
+drwxr-xr-x  7 splunk splunk  79 May  1 23:20 alert_logevent
+drwxr-xr-x  7 splunk splunk  79 May  1 23:20 alert_webhook
+drwxr-xr-x  4 splunk splunk  32 May  1 23:20 introspection_generator_addon
+drwxr-xr-x  4 splunk splunk  37 May  1 23:20 appsbrowser
+drwxr-xr-x  5 splunk splunk  46 May  1 23:20 journald_input
+drwxr-xr-x  3 splunk splunk  21 May  1 23:20 legacy
+drwxr-xr-x  6 splunk splunk  68 May  1 23:20 launcher
+drwxr-xr-x  6 splunk splunk  66 May  1 23:20 sample_app
+drwx------  9 splunk splunk 109 May  1 23:20 search
+drwxr-xr-x  7 splunk splunk  79 May  1 23:20 splunk_essentials_8_2
+drwxr-xr-x  3 splunk splunk  21 May  1 23:20 splunk_internal_metrics
+drwxr-xr-x  8 splunk splunk  96 May  1 23:20 splunk_metrics_workspace
+drwxr-xr-x  9 splunk splunk 178 May  1 23:20 splunk_rapid_diag
+drwxr-xr-x 10 splunk splunk 157 May  1 23:20 splunk_secure_gateway
+drwxr-xr-x  4 splunk splunk  37 May  1 23:20 user-prefs
+drwx------  5 splunk splunk  50 May  1 23:21 learned
+drwxr-xr-x  8 splunk splunk 145 May  1 23:21 splunk-dashboard-studio
+drwx------  9 splunk splunk 106 May  1 23:21 splunk_instrumentation
+drwx------  6 splunk splunk 134 May  1 23:21 DA-ITSI-APPSERVER
+drwx------  8 splunk splunk  92 May  1 23:21 DA-ITSI-CP-aws-dashboards
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-citrix
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-cloud-foundry
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-example-gts
+drwx------  7 splunk splunk  77 May  1 23:21 DA-ITSI-CP-itew-alerting-content
+drwx------  8 splunk splunk  92 May  1 23:21 DA-ITSI-CP-m365
+drwx------  8 splunk splunk  92 May  1 23:21 DA-ITSI-CP-microsoft-exchange
+drwx------  7 splunk splunk  81 May  1 23:21 DA-ITSI-CP-monitoring-alerting
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-monitoring-splunk
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-netapp-dashboards
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-nix
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-phantom
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-shared-infra
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-splunk-observability
+drwx------  7 splunk splunk  77 May  1 23:21 DA-ITSI-CP-thirdparty-apm
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-vmware
+drwx------  6 splunk splunk  66 May  1 23:21 DA-ITSI-CP-windows
+drwx------  7 splunk splunk  90 May  1 23:21 DA-ITSI-ContentLibrary
+drwx------  6 splunk splunk 134 May  1 23:21 DA-ITSI-DATABASE
+drwx------  7 splunk splunk 145 May  1 23:21 DA-ITSI-EUEM
+drwx------  6 splunk splunk 134 May  1 23:21 DA-ITSI-LB
+drwx------  7 splunk splunk 145 May  1 23:21 DA-ITSI-OS
+drwx------  7 splunk splunk 145 May  1 23:21 DA-ITSI-STORAGE
+drwx------  7 splunk splunk 145 May  1 23:21 DA-ITSI-VIRTUALIZATION
+drwx------  6 splunk splunk 134 May  1 23:21 DA-ITSI-WEBSERVER
+drwx------  5 splunk splunk  48 May  1 23:21 SA-ITSI-ATAD
+drwx------  6 splunk splunk 116 May  1 23:21 SA-ITSI-CustomModuleViz
+drwx------  8 splunk splunk  85 May  1 23:21 SA-ITSI-Licensechecker
+drwx------  7 splunk splunk  73 May  1 23:21 SA-ITSI-MetricAD
+drwx------  4 splunk splunk  37 May  1 23:21 SA-IndexCreation
+drwx------  6 splunk splunk 107 May  1 23:21 SA-UserAccess
+drwx------ 11 splunk splunk 219 May  1 23:21 Splunk_SA_CIM
+drwx------ 10 splunk splunk 177 May  1 23:21 Splunk_TA_nix
+drwx------  8 splunk splunk 126 May  1 23:21 sa_ssm
+drwxr-xr-x 12 splunk splunk 152 May  1 23:22 splunk_monitoring_console
+drwx------  9 splunk splunk 125 May  1 23:22 DA-ITSI-CP-windows-dashboards
+drwx------ 10 splunk splunk 115 May  1 23:22 SA-ITOA
+drwx------ 12 splunk splunk 220 May  1 23:22 Splunk_TA_snow
+drwx------ 10 splunk splunk 155 May  1 23:22 splunk_ta_sim
+drwxr-xr-x  8 splunk splunk 143 May  1 23:22 splunk_gdi
+drwxr-xr-x  5 splunk splunk  50 May  1 23:23 splunk_httpinput
+drwx------ 10 splunk splunk 168 May  1 23:23 itsi
+drwx------ 10 splunk splunk 139 May  1 23:26 DA-ITSI-CP-unix-dashboards
+drwx------ 10 splunk splunk 116 May  2 19:20 DA-ITSI-CP-vmware-dashboards
+drwxr-xr-x  6 splunk splunk  64 May  2 22:17 splunk_archiver
+drwxr-xr-x  8 splunk splunk 109 May  5 23:01 python_upgrade_readiness_app
+
+Note: If this does't work, possible the version that you have is it-essential instead of itsi!
+
+ES deployer:
+ls -ltr /opt/splunk/etc/shcluster/apps
+total 4
+drwxrwxrwx  4 splunk splunk  61 Apr 25  2020 Splunk_SA_Scientific_Python_linux_x86_64
+drwxr-xr-x 10 splunk splunk 159 May  7  2021 Splunk_ML_Toolkit
+drwxr-xr-x 14 splunk splunk 276 Sep 14  2021 SplunkEnterpriseSecuritySuite
+-r--r--r--  1 splunk splunk 121 Mar 24 12:11 README
+drwxr-xr-x  5 root   root    54 Apr 25 15:48 DA-ESS-AccessProtection
+drwxr-xr-x  5 root   root    54 Apr 25 15:48 DA-ESS-EndpointProtection
+drwxr-xr-x  5 root   root    48 Apr 25 15:48 DA-ESS-IdentityManagement
+drwxr-xr-x  6 root   root    69 Apr 25 15:48 DA-ESS-NetworkProtection
+drwxr-xr-x  8 root   root    94 Apr 25 15:48 DA-ESS-ThreatIntelligence
+drwxr-xr-x  6 root   root    69 Apr 25 15:48 SA-AccessProtection
+drwxr-xr-x  8 root   root    94 Apr 25 15:48 SA-AuditAndDataProtection
+drwxr-xr-x  6 root   root    69 Apr 25 15:48 SA-EndpointProtection
+drwxr-xr-x  9 root   root   105 Apr 25 15:48 SA-IdentityManagement
+drwxr-xr-x  7 root   root    77 Apr 25 15:48 SA-NetworkProtection
+drwxr-xr-x 11 root   root   132 Apr 25 15:48 SA-ThreatIntelligence
+drwxr-xr-x  6 root   root    65 Apr 25 15:48 SA-UEBA
+drwxr-xr-x 10 root   root   135 Apr 25 15:48 SA-Utils
+drwxr-xr-x 11 root   root   219 Apr 25 15:48 Splunk_SA_CIM
+drwxr-xr-x  9 root   root   171 Apr 25 15:49 Splunk_TA_ueba
+
+
+ES:
+ls -ltr /opt/splunk/etc/apps
+total 0
+drwxr-xr-x  4 splunk splunk  37 May  1 23:05 SplunkForwarder
+drwxr-xr-x  4 splunk splunk  37 May  1 23:05 SplunkLightForwarder
+drwxr-xr-x  7 splunk splunk  79 May  1 23:05 alert_logevent
+drwxr-xr-x  4 splunk splunk  37 May  1 23:05 appsbrowser
+drwxr-xr-x  7 splunk splunk  79 May  1 23:05 alert_webhook
+drwxr-xr-x  4 splunk splunk  32 May  1 23:05 introspection_generator_addon
+drwxr-xr-x  5 splunk splunk  46 May  1 23:05 journald_input
+drwxr-xr-x  6 splunk splunk  68 May  1 23:05 launcher
+drwxr-xr-x  3 splunk splunk  21 May  1 23:05 legacy
+drwxr-xr-x  7 splunk splunk  96 May  1 23:05 python_upgrade_readiness_app
+drwxr-xr-x  6 splunk splunk  66 May  1 23:05 sample_app
+drwx------  9 splunk splunk 109 May  1 23:05 search
+drwxr-xr-x  7 splunk splunk  79 May  1 23:05 splunk_essentials_8_2
+drwxr-xr-x  3 splunk splunk  21 May  1 23:05 splunk_httpinput
+drwxr-xr-x  3 splunk splunk  21 May  1 23:05 splunk_internal_metrics
+drwxr-xr-x  8 splunk splunk  96 May  1 23:05 splunk_metrics_workspace
+drwxr-xr-x  9 splunk splunk 178 May  1 23:05 splunk_rapid_diag
+drwxr-xr-x 10 splunk splunk 157 May  1 23:05 splunk_secure_gateway
+drwxr-xr-x  4 splunk splunk  37 May  1 23:05 user-prefs
+drwx------  5 splunk splunk  50 May  1 23:06 learned
+drwxr-xr-x  8 splunk splunk 145 May  1 23:06 splunk-dashboard-studio
+drwxr-xr-x 12 splunk splunk 152 May  1 23:06 splunk_monitoring_console
+drwx------  5 splunk splunk  54 May  1 23:07 DA-ESS-AccessProtection
+drwx------  5 splunk splunk  54 May  1 23:07 DA-ESS-EndpointProtection
+drwx------  5 splunk splunk  48 May  1 23:07 DA-ESS-IdentityManagement
+drwx------  6 splunk splunk  69 May  1 23:07 DA-ESS-NetworkProtection
+drwx------  6 splunk splunk  69 May  1 23:07 SA-AccessProtection
+drwx------  8 splunk splunk  94 May  1 23:07 SA-AuditAndDataProtection
+drwx------  6 splunk splunk  69 May  1 23:07 SA-EndpointProtection
+drwx------  6 splunk splunk  65 May  1 23:07 SA-UEBA
+drwx------ 11 splunk splunk 219 May  1 23:07 Splunk_SA_CIM
+drwx------  5 splunk splunk  77 May  1 23:08 Splunk_SA_Scientific_Python_linux_x86_64
+drwx------  9 splunk splunk 107 May  1 23:08 DA-ESS-ThreatIntelligence
+drwx------ 10 splunk splunk 118 May  1 23:08 SA-IdentityManagement
+drwx------  8 splunk splunk  90 May  1 23:08 SA-NetworkProtection
+drwx------ 12 splunk splunk 145 May  1 23:08 SA-ThreatIntelligence
+drwx------ 11 splunk splunk 148 May  1 23:08 SA-Utils
+drwx------ 15 splunk splunk 289 May  1 23:08 SplunkEnterpriseSecuritySuite
+drwx------ 11 splunk splunk 172 May  1 23:08 Splunk_ML_Toolkit
+drwx------ 10 splunk splunk 184 May  1 23:08 Splunk_TA_ueba
+drwxr-xr-x  8 splunk splunk 143 May  1 23:08 splunk_gdi
+drwxr-xr-x  9 splunk splunk 106 May  1 23:10 splunk_instrumentation
+drwxr-xr-x  6 splunk splunk  64 May  2 19:17 splunk_archiver
+
+
+
+
+
+
