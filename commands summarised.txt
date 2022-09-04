@@ -1,0 +1,60 @@
+CRD and API:
+k get APIService.v1.apiregistration.k8s.io
+k get APIService.v1.apiregistration.k8s.io v1.apiextensions.k8s.io -o yaml
+ k get CustomResourceDefinition.v1.apiextensions.k8s.io |grep -i APIService
+k get CustomResourceDefinition.v1.apiextensions.k8s.io apiservices.management.cattle.io -o yaml
+ k get CustomResourceDefinition
+k get CustomResourceDefinition.v1.apiextensions.k8s.io podsecuritypolicytemplates.management.cattle.io -o yaml
+k get podsecuritypolicytemplates.management.cattle.io unrestricted -o yaml
+.management.cattle.io restricted -o yaml
+k get CustomResourceDefinition.v1.apiextensions.k8s.io podsecuritypolicytemplateprojectbindings.management.cattle.io -o yaml
+ k get ClusterRole.v1.rbac.authorization.k8s.io cattle-globalrole-podsecuritypolicytemplates-manage -o yaml
+k get PodSecurityPolicy
+k get PodSecurityPolicy.v1beta1.policy
+k get PodSecurityPolicy.v1beta1.policy system-unrestricted-psp
+k get PodSecurityPolicy.v1beta1.policy system-unrestricted-psp -o yaml
+k get ClusterRole.v1.rbac.authorization.k8s.io global-unrestricted-psp-clusterrole system-unrestricted-psp-role
+k describe ClusterRole.v1.rbac.authorization.k8s.io global-unrestricted-psp-clusterrole system-unrestricted-psp-role
+k get ClusterRole.v1.rbac.authorization.k8s.io global-unrestricted-psp-clusterrole -o yaml
+k get ClusterRole.v1.rbac.authorization.k8s.io system-unrestricted-psp-role -o yaml
+k get RoleBinding.v1.rbac.authorization.k8s.io rb-4fuzq4pru5
+k get RoleBinding.v1.rbac.authorization.k8s.io rb-4fuzq4pru5 -o yaml
+
+-----
+cluster namespace info:
+k get ns
+k get project.v3.management.cattle.io -A
+k get ns p-drgrv -o wide
+ k get ns
+k get EnvoyFilter.v1alpha3.networking.istio.io
+k get EnvoyFilter.v1alpha3.networking.istio.io -A
+k get EnvoyFilter.v1alpha3.networking.istio.io stats-filter-1.10 -n istio-system -o yaml |less
+k get ValidatingWebhookConfiguration validating-webhook-configuration -o yaml |grep path: -0
+
+---
+ k api-resources
+kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -n <namespace>
+kubectl api-resources --verbs=list --namespaced -o name | xargs echo -n 1 kubectl get --show-kind --ignore-not-found -n splunk
+kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -n splunk
+
+function kubectlgetall {
+>   for i in $(kubectl api-resources --verbs=list --namespaced -o name | grep -v "events.events.k8s.io" | grep -v "events" | sort | uniq); do
+>     echo "Resource:" $i
+>     kubectl -n ${1} get --ignore-not-found ${i}
+>   done
+> }
+
+kubectlgetall splunk
+kubectl api-resources -o wide
+kubectl api-resources --api-group apps -o wide
+kubectl explain pod
+kubectl api-versions
+kubectl api-resources -v 6
+
+----
+
+manifest:
+helm list -Aa
+helm get manifest nfs-client-provisioner -n nfs-client-system |less
+helm get manifest splunk-connect -n splunk |k get -f - |less
+helm get manifest anchore-engine -n anchore-enterprise |k get -f - |less
