@@ -1,0 +1,79 @@
+kubectl get pods -n kube-system -o json|less
+# Check which nodes are ready
+k get nodes -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' | grep "Ready=True
+
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'
+
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' | xargs -d ';' -n1 echo
+
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' |grep Ready=True
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' |grep PodScheduled=True
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' |grep ContainersReady=True
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' |grep <name of metadata>
+
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]};{end}' | xargs -d ';' -n4 echo
+
+kubectl get pods -n kube-system -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' | xargs -d ';' -n4 echo
+
+ k get secret anchore-enterprise-license -n anchore-enterprise -o json |less
+kubectl get secret anchore-enterprise-license -n anchore-enterprise -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}'
+
+# List all Secrets currently in use by a pod
+kubectl get pods -o json | jq '.items[].spec.containers[].env[]?.valueFrom.secretKeyRef.name' | grep -v null | sort | uniq
+
+# List all containerIDs of initContainer of all pods
+# Helpful when cleaning up stopped containers, while avoiding removal of initContainers.
+kubectl get pods --all-namespaces -o jsonpath='{range .items[*].status.initContainerStatuses[*]}{.containerID}{"\n"}{end}' | cut -d/ -f3
+
+# Check which nodes are ready
+JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' \
+ && kubectl get nodes -o jsonpath="$JSONPATH" | grep "Ready=True"
+ 
+# Retrieve the value of a key with dots, e.g. 'ca.crt'
+kubectl get configmap myconfig \
+-o jsonpath='{.data.ca\.crt}'
+
+kubectl get configmap -n trident-system
+kubectl get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}'
+
+# Get the version label of all pods with label app=cassandra
+kubectl get pods --selector=app=cassandra -o \
+  jsonpath='{.items[*].metadata.labels.version}'
+  
+# List Events sorted by timestamp
+kubectl get events --sort-by=.metadata.creationTimestamp
+
+# Compares the current state of the cluster against the state that the cluster would be in if the manifest was applied.
+kubectl diff -f ./my-manifest.yaml
+helm get manifest trident-operator -n trident-system |k diff -f -
+
+# Produce a period-delimited tree of all keys returned for nodes
+# Helpful when locating a key within a complex nested JSON structure
+kubectl get nodes -o json | jq -c 'paths|join(".")'
+
+# Produce a period-delimited tree of all keys returned for pods, etc
+kubectl get pods -o json | jq -c 'paths|join(".")'
+
+# Get a deployment's status subresource
+kubectl get deployment nginx-deployment --subresource=status
+
+# Produce ENV for all pods, assuming you have a default container for the pods, default namespace and the `env` command is supported.
+# Helpful when running any supported command across all pods, not just `env`
+for pod in $(kubectl get po --output=jsonpath={.items..metadata.name}); do echo $pod && kubectl exec -it $pod -- env; done
+
+for pod in $(kubectl get po --output=jsonpath={.items..metadata.name}); do echo $pod && kubectl exec -it $pod -- env; done
+k exec -it pvpod2 -- env
+for pod in $(kubectl get po -A --output=jsonpath={.items..metadata.name}); do echo $pod ; done
+
+#namespace
+for pod in $(kubectl get po -n splunk --output=jsonpath={.items..metadata.name}); do echo $pod && kubectl exec -it $pod -n splunk -- env; done
+
+for pod in $(kubectl get po -n splunk --output=jsonpath={.items..metadata.name}); do echo $pod && kubectl exec -it $pod -n splunk -- env; done | xargs -d '\n' -n3 echo
+
+
+# Replace a pod based on the JSON passed into stdin
+cat pod.json | kubectl replace -f -  
+
+kubectl delete -f ./pod.json                                      # Delete a pod using the type and name specified in pod.json
+kubectl create -f ./newpod.json
+

@@ -1,0 +1,154 @@
+#key-value pairs
+apiVersion: v1
+kind: Pod    
+metadata:    #object
+  name: nginx
+  labels: #object
+    app: nginx
+spec: #object
+  containers: #list of objects
+  - name: nginx-container
+    image: nginx
+	ports: #list  
+	- containerPort: 80
+	volumeMounts: #list of objects
+	- name: nginx-vol
+	  mountPath: /usr/nginx/html
+      
+	
+    
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "nginx",
+    "labels": {
+      "app": "nginx"
+    }
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "nginx-container",
+        "image": "nginx"
+      }
+    ]
+  },
+  "ports": [
+    {
+      "containerPort": 80
+    }
+  ],
+  "volumeMounts": [
+    {
+      "name": "nginx-vol"
+    }
+  ],
+  "mountPath": "/usr/ngnix/html"
+}
+
+
+<apiVersion>v1</apiVersion>
+<kind>Pod</kind>
+<metadata>
+  <name>nginx</name>
+  <labels>
+    <app>nginx</app>
+  </labels>
+</metadata>
+<spec>
+  <containers>
+    <name>nginx-container</name>
+    <image>nginx</image>
+  </containers>
+</spec>
+<ports>
+  <containerPort>80</containerPort>
+</ports>
+<volumeMounts>
+  <name>nginx-vol</name>
+</volumeMounts>
+<mountPath>/usr/ngnix/html</mountPath>
+
+
+
+----------------
+
+#key-value pairs
+apiVersion: v1
+kind: Pod    
+metadata:    #object
+  name: nginx
+  labels: #object
+    app: nginx
+spec: #object
+  containers: #list of objects
+  - name: nginx-container
+    image: nginx
+	ports: #list  
+	- containerPort: 80
+	volumeMounts: #list of objects
+	- name: nginx-vol
+	  mountPath: /usr/nginx/html
+  - name: sidecar-container
+    image: curlimages/curl
+    command: ["/bin/sh"]
+    args: ["-c", "echo Hell from the sidecar containers; sleep 300"]
+    
+---
+    
+multilineString: |
+ this is a multiline string
+ and this is the next line
+ next line
+    
+    
+multilineString: >
+ this is a single string
+ and this is the next line
+ next line
+ 
+King: configMap
+metadata:
+  name: mosquitto-config-file
+data:
+  mosquitto.conf: |
+    log_dest stdout
+    log_type all
+    log_timestamp true
+    listener 9001
+
+#example of multline executing shell script    
+command:
+- sh
+- -c
+- |  #multiline symbol
+  #!/usr/bin/env bash -e
+  http () {
+      local path="${1}"
+      set -- -XGET -s --fail
+      #some more stuff here
+      curl -k "$@" "http://localhost:5601${path}"
+  }
+  http "/app/kibana
+  
+#example of single line shell script for ENVIRONMENT VARIABLE
+command: 
+  -/bin/sh
+  - -ec
+  - >-
+    mysql -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD -e 'SELECT 1'
+    
+#place holder variable
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}
+spec:
+  selector: 
+    app: {{ .Values.service.app }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Value.service.targetport }}
+      

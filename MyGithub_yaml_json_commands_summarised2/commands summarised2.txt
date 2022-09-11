@@ -1,0 +1,68 @@
+helm get manifest anchore-engine -n anchore-enterprise |k get -f - |less
+helm get manifest anchore-engine -n anchore-enterprise |k apply -f - #will this work???
+helm get manifest anchore-engine -n anchore-enterprise |k replace -f - #will this work???
+# Replace a pod based on the JSON passed into stdin
+cat pod.json | kubectl replace -f -  
+
+helm get manifest trident-operator -n trident-system |k diff -f -
+kubectl top pod trident-csi-6c9fc4766d-hwgvh -n trident-system --containers
+kubectl top pod trident-csi-6c9fc4766d-hwgvh -n trident-system --sort-by=cpu
+
+#Copy files and directories to and from containers
+kubectl cp /tmp/foo_dir my-pod:/tmp/bar_dir            # Copy /tmp/foo_dir local directory to /tmp/bar_dir in a remote pod in the current namespace
+kubectl cp /tmp/foo my-pod:/tmp/bar -c my-container    # Copy /tmp/foo local file to /tmp/bar in a remote pod in a specific container
+kubectl cp /tmp/foo my-namespace/my-pod:/tmp/bar       # Copy /tmp/foo local file to /tmp/bar in a remote pod in namespace my-namespace
+kubectl cp my-namespace/my-pod:/tmp/foo /tmp/bar       # Copy /tmp/foo from a remote pod to /tmp/bar locally
+#Note: kubectl cp requires that the 'tar' binary is present in your container image. If 'tar' is not present,kubectl cp will fail. For advanced use cases, such as symlinks, wildcard expansion or file mode preservation consider using kubectl exec.
+tar cf - /tmp/foo | kubectl exec -i -n my-namespace my-pod -- tar xf - -C /tmp/bar           # Copy /tmp/foo local file to /tmp/bar in a remote pod in namespace my-namespace
+kubectl exec -n my-namespace my-pod -- tar cf - /tmp/foo | tar xf - -C /tmp/bar    # Copy /tmp/foo from a remote pod to /tmp/bar locally
+
+k exec -it pvpod --  sh
+k cp test.txt pvpod:/data2
+k exec -it pvpod -- sh
+/ # ll /data2
+test.txt
+
+k top  pod trident-csi-6c9fc4766d-hwgvh -n trident-system --containers
+k logs -c csi-attacher trident-csi-6c9fc4766d-hwgvh -n trident-system
+k top pod anchore-engine-anchore-engine-api-79dd8c98f6-m98l9 -n anchore-enterprise --containers
+
+k exec anchore-engine-anchore-engine-api-79dd8c98f6-m98l9 -n anchore-enterprise -c anchore-engine-notifications -- pwd
+k exec anchore-engine-anchore-engine-api-79dd8c98f6-m98l9 -n anchore-enterprise -c anchore-engine-notifications -- df -h
+kubectl get pod pvpod -o custom-columns=CONTAINER:.spec.containers[0].name,IMAGE:.spec.containers[0].image
+kubectl get pod -A -o custom-columns=CONTAINER:.spec.containers[0].name,IMAGE:.spec.containers[0].image
+
+kubectl get pod -A -o custom-columns=CONTAINER:.spec.containers[0].envFrom |  xargs -d ' ' -n1 echo --ignore-not-found
+
+kubectl get pod -A -o custom-columns=CONTAINER:.spec.containers[0].envFrom |  xargs -d ' ' -n1 echo
+kubectl get pods -A --show-labels
+k get pods -A -l app=anchore-engine-anchore-engine
+kubectl logs -f -l app=anchore-engine-anchore-engine --all-containers -n anchore-enterprise
+error: you are attempting to follow 11 log streams, but maximum allowed concurrency is 5, use --max-log-requests to increase the limit
+
+k get nodes --show-labels
+
+k get pods --show-labels
+k get pods --selector tier=prod
+k get pods -l 'tier in (prod,qa)'
+k get pods -l 'tier notin (prod,qa)'
+k get nodes --show-labels
+k get pods -L tier
+k get pods -L tier,app
+
+
+k label pod nginx-pod-1 tier=non-prod --overwrite  (update)
+k label pod nginx-pod-1 antoher=Label (add)
+k label pod nginx-pod-1 another-      (remove)
+
+k annotate pod nginx-pod owner=anthony
+k annotate pod nginx-pod owner=Notanthony --overwrite
+
+k get pods -A -L app
+k get pods -A -L "app.kubernetes.io/instance"
+k get pods -A -L component
+
+
+
+
+

@@ -1,0 +1,153 @@
+---
+json:
+  - rigid
+  - better for data interchange
+yaml: 
+  - slim and flexible
+  - better for configuration
+object:
+  key: value
+  array:
+    - null_value:
+    - boolean: true
+    - integer: 1
+    - alias: &example aliases are like variables
+    - alias: *example
+paragraph: >
+   Blank lines denote
+
+   paragraph breaks
+content: |-
+   Or we
+   can auto
+   convert line breaks
+   to save space
+alias: &foo
+  bar: baz
+alias_reuse: *foo
+
+
+
+#converted to json:
+{
+  "json": [
+    "rigid",
+    "better for data interchange"
+  ],
+  "yaml": [
+    "slim and flexible",
+    "better for configuration"
+  ],
+  "object": {
+    "key": "value",
+    "array": [
+      {
+        "null_value": null
+      },
+      {
+        "boolean": true
+      },
+      {
+        "integer": 1
+      },
+      {
+        "alias": "aliases are like variables"
+      },
+      {
+        "alias": "aliases are like variables"
+      }
+    ]
+  },
+  "paragraph": "Blank lines denote\nparagraph breaks\n",
+  "content": "Or we\ncan auto\nconvert line breaks\nto save space",
+  "alias": {
+    "bar": "baz"
+  },
+  "alias_reuse": {
+    "bar": "baz"
+  }
+}
+
+<json>rigid</json>
+<json>better for data interchange</json>
+<yaml>slim and flexible</yaml>
+<yaml>better for configuration</yaml>
+<object>
+  <key>value</key>
+  <array>
+    <null_value/>
+  </array>
+  <array>
+    <boolean>true</boolean>
+  </array>
+  <array>
+    <integer>1</integer>
+  </array>
+  <array>
+    <alias>aliases are like variables</alias>
+  </array>
+  <array>
+    <alias>aliases are like variables</alias>
+  </array>
+</object>
+<paragraph>Blank lines denoteparagraph breaks</paragraph>
+<content>Or wecan autoconvert line breaksto save space</content>
+<alias>
+  <bar>baz</bar>
+</alias>
+<alias_reuse>
+  <bar>baz</bar>
+</alias_reuse>
+
+
+---------
+content: |-
+  Or we
+  can auto
+  convert line breaks
+  to save space
+  
+{
+  "content": "Or we\ncan auto\nconvert line breaks\nto save space"
+}
+
+#\n last line
+content: |
+  Or we
+  can auto
+  convert line breaks
+  to save space
+  
+{
+  "content": "Or we\ncan auto\nconvert line breaks\nto save space\n"
+}
+
+
+content: 
+  Or we
+  can auto
+  convert line breaks
+  to save space
+  
+{
+  "content": "Or we can auto convert line breaks to save space"
+}
+
+
+paragraph: >
+  Blank lines denote
+  paragraph breaks
+  
+{
+  "paragraph": "Blank lines denote paragraph breaks\n"
+}
+
+paragraph:
+  Blank lines denote
+  paragraph breaks
+  
+{
+
+{
+  "paragraph": "Blank lines denote paragraph breaks"
+}

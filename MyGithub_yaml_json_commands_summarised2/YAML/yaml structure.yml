@@ -1,0 +1,255 @@
+http://www.yamllint.com/
+https://www.json2yaml.com/
+https://onlineyamltools.com/convert-yaml-to-json
+https://onlineyamltools.com/convert-yaml-to-xml
+
+--- 
+microservices: 
+  #object with it's listed attributes (app is list item and app2, app3 are attributes within app???? didn't seem that way!!!)
+  - app1: what
+    port: 900
+    version: 1
+    
+  - app2: what
+    port: 900
+    version: 2
+	
+
+{
+  "microservices": [
+    {
+      "app1": "what",
+      "port": 900,
+      "version": 1
+    },
+    {
+      "app2": "what",
+      "port": 900,
+      "version": 2
+    }
+  ]
+}
+
+<microservices>
+  <app1>what</app1>
+  <port>900</port>
+  <version>1</version>
+</microservices>
+<microservices>
+  <app2>what</app2>
+  <port>900</port>
+  <version>2</version>
+</microservices>
+
+---
+#object with it's attributes, #note you can't have the same attribute name .eg app1 and app2 needs to be diff name
+microservices: 
+  app1: what
+  port1: 900
+  version1: 1
+  
+  app2: what
+  port2: 900
+  version2: 1
+	
+{
+  "microservices": {
+    "app1": "what",
+    "port1": 900,
+    "version1": 1,
+    "app2": "what",
+    "port2": 900,
+    "version2": 1
+  }
+}
+
+<microservices>
+  <app1>what</app1>
+  <port1>900</port1>
+  <version1>1</version1>
+  <app2>what</app2>
+  <port2>900</port2>
+  <version2>1</version2>
+</microservices>
+
+--- 
+microservices: 
+  #list
+  - app1: what
+    port: 900
+    version: 1
+    subapp: 
+      - subapp1: web
+      - subapp2: web2
+      - subapp3: 
+          - db
+          - web
+          - ldap
+      - subapp4: [db2,web2,ldap2]
+    
+  -  app2: what
+     port: 800
+     version: 2
+     
+     
+     
+
+{
+  "microservices": [
+    {
+      "app1": "what",
+      "port": 900,
+      "version": 1,
+      "subapp": [
+        {
+          "subapp1": "web"
+        },
+        {
+          "subapp2": "web2"
+        },
+        {
+          "subapp3": [
+            "db",
+            "web",
+            "ldap"
+          ]
+        },
+        {
+          "subapp4": [
+            "db2",
+            "web2",
+            "ldap2"
+          ]
+        }
+      ]
+    },
+    {
+      "app2": "what",
+      "port": 800,
+      "version": 2
+    }
+  ]
+}
+
+<microservices>
+  <app1>what</app1>
+  <port>900</port>
+  <version>1</version>
+  <subapp>
+    <subapp1>web</subapp1>
+  </subapp>
+  <subapp>
+    <subapp2>web2</subapp2>
+  </subapp>
+  <subapp>
+    <subapp3>db</subapp3>
+    <subapp3>web</subapp3>
+    <subapp3>ldap</subapp3>
+  </subapp>
+  <subapp>
+    <subapp4>db2</subapp4>
+    <subapp4>web2</subapp4>
+    <subapp4>ldap2</subapp4>
+  </subapp>
+</microservices>
+<microservices>
+  <app2>what</app2>
+  <port>800</port>
+  <version>2</version>
+</microservices>
+
+-----------------
+    
+--- 
+microservices: 
+  #list of atribute blongs to app1
+  - app1: what
+    port: 900
+    version: 1
+    subapp: 
+      - subapp1: web
+      - subapp2: web2
+
+{
+  "microservices": [
+    {
+      "app1": "what",
+      "port": 900,
+      "version": 1,
+      "subapp": [
+        {
+          "subapp1": "web"
+        },
+        {
+          "subapp2": "web2"
+        }
+      ]
+    }
+  ]
+}
+
+<microservices>
+  <app1>what</app1>
+  <port>900</port>
+  <version>1</version>
+  <subapp>
+    <subapp1>web</subapp1>
+  </subapp>
+  <subapp>
+    <subapp2>web2</subapp2>
+  </subapp>
+</microservices>
+
+-------------------
+microservices: 
+  #list of atribute blongs to app1
+  - app1: what
+    port: 900
+    version: 1
+    #list of atribute blongs to subapp (most used)
+    subapp: 
+      - subapp1: web
+        port: 800
+        version: 2
+      - subapp2: web2
+        port: 700
+        version: 3
+        
+
+{
+  "microservices": [
+    {
+      "app1": "what",
+      "port": 900,
+      "version": 1,
+      "subapp": [
+        {
+          "subapp1": "web",
+          "port": 800,
+          "version": 2
+        },
+        {
+          "subapp2": "web2",
+          "port": 700,
+          "version": 3
+        }
+      ]
+    }
+  ]
+}
+
+<microservices>
+  <app1>what</app1>
+  <port>900</port>
+  <version>1</version>
+  <subapp>
+    <subapp1>web</subapp1>
+    <port>800</port>
+    <version>2</version>
+  </subapp>
+  <subapp>
+    <subapp2>web2</subapp2>
+    <port>700</port>
+    <version>3</version>
+  </subapp>
+</microservices>
